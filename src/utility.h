@@ -11,6 +11,9 @@ extern std::mt19937 rng;
 extern std::uniform_real_distribution<double> uniform_random;
 
 double vec_mean(const std::vector<double> &vec);
+
 double vec_variance(const std::vector<double> &vec);
+
+std::string vec_to_str(const std::vector<std::string> &vec);
 
 #endif //L_SYSTEMS_UTILITY_H

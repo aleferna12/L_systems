@@ -6,7 +6,6 @@
 
 #include <utility>
 #include <stdexcept>
-#include <sstream>
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
@@ -17,6 +16,25 @@ Organism::Organism(
 ) : body(seedling),
     seedling(seedling),
     genome(std::move(genome)) {
+}
+
+const auto &Organism::random_gene() {
+    std::uniform_int_distribution<> uniform_genome(0, (int) genome.size() - 1);
+    return *std::next(std::begin(genome), uniform_genome(rng));
+}
+
+void Organism::randomize_genome(unsigned int size) {
+    if (size > 30)
+        throw std::runtime_error("Max 'size' is 30");
+
+    genome = {};
+    genome["A"] = {"A", "A"};
+    for (int i = 0; i < size; i++) {
+        auto &gene = random_gene();
+        genome[std::string{char(i + 66)}] = gene.second;
+    }
+    for (int i = 0; i < 5; i++)
+        mut_sub(1);
 }
 
 void Organism::grow(unsigned int nsteps) {
@@ -30,10 +48,6 @@ void Organism::grow(unsigned int nsteps) {
             }
 
             auto target_genes = search->second;
-            if (target_genes.size() != 3) {
-                // TODO: This should point to an 3-long array instead of a vector
-                throw std::runtime_error("Malformed genome rule");
-            }
             for (auto &target_gene: target_genes) {
                 if (!target_gene.empty())
                     new_body.push_back(target_gene);
@@ -43,31 +57,19 @@ void Organism::grow(unsigned int nsteps) {
     }
 }
 
-std::string Organism::body_as_string() {
-    std::ostringstream result;
-    for (auto it = body.begin(); it != body.end() - 1; it++) {
-        result << *it;
-        result << ',';
-    }
-    result << body.back();
-    return result.str();
-}
-
-std::string Organism::translated_body() {
-    std::ostringstream result;
-    for (auto it = body.begin(); it != body.end() - 1; it++) {
-        result << translate_gene(*it, *(it + 1));
-        result << ',';
-    }
-    result << translate_gene(body.back(), "");
-    return result.str();
-}
-
-std::string Organism::translate_gene(const std::string &gene, const std::string &next_gene) {
+std::string Organism::translate_gene(const std::string &gene) {
     if (is_growth_gene(gene)) {
         return "F";
     }
     return gene;
+}
+
+std::vector<std::string> Organism::translated_body() {
+    std::vector<std::string> ret;
+    for (const auto &gene : body) {
+        ret.push_back(translate_gene(gene));
+    }
+    return ret;
 }
 
 void Organism::mutate(double sub_rate, double dup_rate, double del_rate) {
@@ -101,24 +103,15 @@ void Organism::mut_sub(double sub_rate) {
         if (uniform_random(rng) > sub_rate)
             continue;
 
-        if (uniform_random(rng) < 0.1) {
-            gene.second[0] = "[";
-            gene.second[1] = "]";
-            continue;
-        }
-
         std::string sub_gene;
-        if (uniform_random(rng) < 0.1) {
-            std::uniform_int_distribution<> uniform_dir(0, DIR_GENES.size() - 1);
-            sub_gene = DIR_GENES[uniform_dir(rng)];
+        if (uniform_random(rng) < 0.5) {
+            std::uniform_int_distribution<> uniform_dir(0, CORE_GENES.size() - 1);
+            sub_gene = CORE_GENES[uniform_dir(rng)];
         } else {
-            std::uniform_int_distribution<> uniform_genome(0, (int) genome.size() - 1);
-            sub_gene = std::next(std::begin(genome), uniform_genome(rng))->first;
+            sub_gene = random_gene().first;
         }
 
-        std::uniform_int_distribution<> uniform_3(0, 2);
-        int target_i = uniform_3(rng);
-        gene.second[target_i] = sub_gene;
+        gene.second.at(int(uniform_random(rng) * 2)) = sub_gene;
     }
 }
 
@@ -134,9 +127,9 @@ void Organism::mut_del(double del_rate) {
         to_remove.push_back(gene.first);
 
         for (auto &gene2 : genome) {
-            for (int target_gene = 0; target_gene < 3; target_gene++) {
-                if (gene2.second[target_gene] == gene.first)
-                    gene2.second[target_gene] = "";
+            for (auto &target_gene : gene2.second) {
+                if (target_gene == gene.first)
+                    target_gene = "";
             }
         }
     }
@@ -148,135 +141,46 @@ void Organism::mut_del(double del_rate) {
 void Organism::print_genome() {
     for (auto &gene : genome) {
         std::cout << gene.first << ": ";
-        for (int i = 0; i < 2; i++) {
-            std::cout << gene.second[i] << " - ";
-        }
-        std::cout << gene.second[2];
+        std::cout << gene.second[0] << " - " << gene.second[1];
         std::cout << "\n";
     }
-}
-
-unsigned int Organism::count_seeds() {
-    unsigned int c = 0;
-    for (auto &gene : body) {
-        if (gene == "s")
-            c++;
-    }
-    return c;
-}
-
-std::vector<unsigned int> Organism::branch_lengths() {
-    // Size of the branch and whether it contains both directional genes and growth genes
-    std::vector<std::pair<unsigned int, std::pair<bool, bool>>> bl_stack;
-    std::vector<unsigned int> branch_ls;
-    for (auto &gene : body) {
-        if (gene == "[") {
-            bl_stack.emplace_back();
-            continue;
-        }
-        if (bl_stack.empty())
-            continue;
-
-        auto &x = bl_stack.back();
-        if (gene == "]") {
-            if (x.second.first && x.second.second)
-                branch_ls.push_back(x.first);
-            bl_stack.pop_back();
-        } else {
-            if (std::find(ROTATE_GENES.begin(), ROTATE_GENES.end(), gene) != ROTATE_GENES.end())
-                x.second.first = true;
-            else
-                x.second.second = true;
-            x.first++;
-        }
-    }
-    return branch_ls;
-}
-
-unsigned int Organism::count_rotations() {
-    unsigned int c = 0;
-    for (auto &gene : body) {
-        if (std::find(ROTATE_GENES.begin(), ROTATE_GENES.end(), gene) != ROTATE_GENES.end())
-            c++;
-    }
-    return c;
-}
-
-unsigned int Organism::rotational_variance() {
-    std::unordered_set<std::string> rot_genes;
-    for (auto &gene : body) {
-        if (std::find(ROTATE_GENES.begin(), ROTATE_GENES.end(), gene) != ROTATE_GENES.end()) {
-            rot_genes.insert(gene);
-        }
-    }
-    return rot_genes.size();
 }
 
 // TODO: this has to change to instead just check if there already is an object in that position and stop
 //  development in that case
 unsigned int Organism::get_fitness() {
     unsigned int fit_counter = 0;
-    std::vector<BranchProperties> valid {{}};
-
-    for (const auto &gene : body) {
+    DevState cur_state = {};
+    std::vector<DevState> state_stack = {};
+    std::unordered_set<std::tuple<int, int, int>, key_hash> occupied;
+    for (auto it = body.begin(); it != body.end(); it++) {
+        std::string &gene = *it;
+        auto inserted = occupied.insert(std::make_tuple(cur_state.x, cur_state.y, cur_state.z));
         if (gene == "[") {
-            valid.emplace_back();
-            valid.back().cumroty = valid[valid.size() - 2].cumroty;
-            continue;
-        }
-        auto &cur_valid = valid.back();
-        if (gene == "]") {
-            if (valid.size() <= 1) {
-                continue;
+            state_stack.push_back(cur_state);
+            cur_state = {};
+        } else if (gene == "]" && !state_stack.empty()) {
+            cur_state = state_stack.back();
+            state_stack.pop_back();
+        } else if (gene[0] == 'x')
+            cur_state.ax += gene[1] == '+' ? ROTATION_ANGLE : -ROTATION_ANGLE;
+        else if (gene[0] == 'y')
+            cur_state.ay += gene[1] == '+' ? ROTATION_ANGLE : -ROTATION_ANGLE;
+        else if (gene == "s") {
+            if (inserted.second) {
+                auto next = it + 1;
+                if (next == body.end() || (!state_stack.empty() && *next == "]"))
+                    fit_counter++;
             }
-
-            if (
-                cur_valid.last_seed &&
-                cur_valid.has_grown &&
-                abs(cur_valid.cumroty) < 4
-            )
-                fit_counter++;
-
-            valid.pop_back();
-            continue;
-        }
-
-        if (gene[0] == 'y') {
-            auto add = gene[1] == '+' ? 1 : -1;
-            cur_valid.roty += add;
-            cur_valid.cumroty += add;
-        }
-        else if (gene[0] == 'x')
-            cur_valid.rotx += gene[1] == '+' ? 1 : -1;
-        else if (gene == "s")
-            cur_valid.last_seed = true;
-        else {
-            const auto &prev_valid = valid[valid.size() - 2];
-            if (
-                !cur_valid.has_grown && (
-                    cur_valid.rotx != 0 &&
-                    cur_valid.roty != prev_valid.roty
-                )
-            )
-                cur_valid.has_grown = true;
-            cur_valid.last_seed = false;
+        } else {
+            cur_state.x += GROWTH_FACTOR * sin(cur_state.ax) * cos(cur_state.ay);
+            cur_state.y += GROWTH_FACTOR * cos(cur_state.ax) * cos(cur_state.ay);
+            cur_state.z += GROWTH_FACTOR * sin(cur_state.ay);
         }
     }
-
-    return fit_counter + valid[0].last_seed;
+    return fit_counter;
 }
 
 bool Organism::is_growth_gene(const std::string &gene) {
     return std::find(CORE_GENES.begin(), CORE_GENES.end(), gene) == CORE_GENES.end();
 }
-
-//unsigned int Organism::get_fitness() {
-//    unsigned int fitness = 0;
-//    auto branches = get_branches();
-//    for (const auto &branch : branches) {
-//        if (!branch.empty() || branch.back() != "s") {
-//            fitness++;
-//        }
-//    }
-//    return fitness;
-//}

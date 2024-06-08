@@ -1,35 +1,41 @@
 #include <iostream>
 #include <utility>
 #include <cmath>
+#include <fstream>
 #include "organism.h"
 
-int main() {
+const int GROWTH_STEPS = 10;
+const int N_POP = 1000;
+const int GENS = 1000;
+
+int main(int argc, char *argv[]) {
     std::vector<std::string> seedling = {"A"};
-    Genome genome;
-    genome["A"] = {"[", "B", "]"};
-    genome["B"] = {"y+", "x+", "A"};
 
     std::vector<Organism> pop;
-    pop.reserve(1000);
-    for (int i = 0; i < 1000; i++) {
-            pop.emplace_back(seedling, genome);
+    for (int i = 0; i < N_POP; i++) {
+        Organism o(seedling, {});
+        o.randomize_genome(10);
+        pop.push_back(o);
     }
 
     Organism best = pop[0];
     double best_fitness = 0;
-    for (int i = 0; i < 2000; i++) {
+    for (int i = 0; i < GENS; i++) {
         std::cout << "Generation: " << i << std::endl;
 
         std::vector<std::pair<double, int>> fitness_organism;
         double tot_fitness = 0;
+        int tot_genome_size = 0;
         for (int j = 0; j < pop.size(); j++) {
             auto &o = pop.at(j);
-            o.grow(6);
+            o.grow(GROWTH_STEPS);
 
             auto fitness = 1. + o.get_fitness();
+            fitness *= fitness;  // This helps a lot
             o.body = o.seedling;
 
             tot_fitness += fitness;
+            tot_genome_size += (int) o.genome.size();
             fitness_organism.emplace_back(fitness, j);
 
             if (fitness > best_fitness) {
@@ -38,7 +44,8 @@ int main() {
             }
         }
 
-        std::cout << "Mean get_fitness: " << tot_fitness / (double) fitness_organism.size() << "\n";
+        std::cout << "Mean fitness: " << tot_fitness / (double) fitness_organism.size() << "\n";
+        std::cout << "Mean genome size: " << tot_genome_size / (double) fitness_organism.size() << "\n\n";
 
         std::vector<Organism> new_pop;
         for (int j = 0; j < pop.size(); j++) {
@@ -59,15 +66,19 @@ int main() {
         }
 
         for (auto &o : new_pop) {
-            o.mutate(0.05, 0.001, 0.0008);
+            o.mutate(0.05, 0.005, 0.005);
         }
 
         pop = new_pop;
     }
 
-    best.grow(6);
+    best.grow(GROWTH_STEPS);
     best.get_fitness();
-    std::cout << best.body_as_string() << "\n";
-    std::cout << best.translated_body() << "\n";
+    std::cout << vec_to_str(best.body) << "\n";
+
+    std::ofstream file;
+    file.open("../out.txt");
+    file << vec_to_str(best.translated_body()) << "\n";
+
     best.print_genome();
 }

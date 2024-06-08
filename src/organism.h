@@ -12,19 +12,26 @@
 #include "utility.h"
 
 const unsigned int GROWTH_FACTOR = 100;
+const int ROTATION_ANGLE = 30;
 
-const std::array ROTATE_GENES = {"x+", "x-", "y+", "y-"};
 const std::array DIR_GENES = {"x+", "x-", "y+", "y-", "s"};
 const std::array CORE_GENES = {"x+", "x-", "y+", "y-", "s", "[", "]"};
 
 using Genome = std::unordered_map<std::string, std::vector<std::string>>;
 
-struct BranchProperties {
-    int rotx;
-    int roty;
-    int cumroty;
-    bool has_grown;
-    bool last_seed;
+struct DevState {
+    double x;
+    double y;
+    double z;
+    int ax;
+    int ay;
+};
+
+struct key_hash {
+    std::size_t operator()(const std::tuple<int, int, int> &k) const
+    {
+        return std::get<0>(k) ^ std::get<1>(k) ^ std::get<2>(k);
+    }
 };
 
 class Organism {
@@ -33,17 +40,7 @@ public:
 
     void grow(unsigned int nsteps = 1);
 
-    unsigned int count_seeds();
-
     unsigned int get_fitness();
-
-    std::vector<std::vector<std::string>> get_branches();
-
-    bool valid_branch(const std::vector<std::string> &branch);
-
-    std::vector<unsigned int> branch_lengths();
-
-    unsigned int count_rotations();
 
     void mutate(double sub_rate, double dup_rate, double del_rate);
 
@@ -53,21 +50,21 @@ public:
 
     void mut_del(double del_rate);
 
-    std::string translated_body();
+    static std::string translate_gene(const std::string &gene);
 
-    static std::string translate_gene(const std::string &gene, const std::string &next_gene);
+    std::vector<std::string> translated_body();
 
     void print_genome();
+
+    static bool is_growth_gene(const std::string &gene);
+
+    const auto &random_gene();
+
+    void randomize_genome(unsigned int size);
 
     std::vector<std::string> body;
     std::vector<std::string> seedling;
     Genome genome;
-
-    unsigned int rotational_variance();
-
-    std::string body_as_string();
-
-    static bool is_growth_gene(const std::string &gene);
 };
 
 #endif //L_SYSTEMS_ORGANISM_H
