@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 
     Environment env(
         N_POP,
-        5,
+        10,
         GROWTH_STEPS,
         0.05,
         0.005,
