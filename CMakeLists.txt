@@ -4,7 +4,9 @@ project(L_systems)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(L_systems src/main.cpp
-        src/organism.h
-        src/organism.cpp
+        src/plant.h
+        src/plant.cpp
         src/utility.cpp
-        src/utility.h)
+        src/utility.h
+        src/environment.cpp
+        src/environment.h)
