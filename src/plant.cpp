@@ -163,10 +163,12 @@ void Plant::update_fitness() {
     unsigned int fit_counter = 0;
     DevState cur_state = {};
     std::vector<DevState> state_stack = {};
-    std::unordered_set<std::tuple<int, int, int>, key_hash> occupied;
+    // Position -> whether a seed that counted towards fitness was inserted at that position
+    std::unordered_map<std::tuple<int, int, int>, bool, key_hash> increased_fitness;
     for (auto it = body.begin(); it != body.end(); it++) {
         std::string &gene = *it;
-        auto inserted = occupied.insert(std::make_tuple(cur_state.x, cur_state.y, cur_state.z));
+        auto pos_tup = std::make_tuple(cur_state.x, cur_state.y, cur_state.z);
+        auto inserted = increased_fitness.insert({pos_tup, false});
         if (gene == "[") {
             state_stack.push_back(cur_state);
             cur_state = {};
@@ -180,13 +182,20 @@ void Plant::update_fitness() {
         else if (gene == "*") {
             if (inserted.second) {
                 auto next = it + 1;
-                if (next == body.end() || (!state_stack.empty() && *next == "]"))
+                if (next == body.end() || (!state_stack.empty() && *next == "]")) {
                     fit_counter++;
+                    inserted.first->second = true;
+                }
             }
         } else {
-            cur_state.x += GROWTH_FACTOR * sin(cur_state.ax) * cos(cur_state.ay);
-            cur_state.y += GROWTH_FACTOR * cos(cur_state.ax) * cos(cur_state.ay);
-            cur_state.z += GROWTH_FACTOR * sin(cur_state.ay);
+            cur_state.x += int(COLLISION_PRECISION * sin(cur_state.ax) * cos(cur_state.ay));
+            cur_state.y += int(COLLISION_PRECISION * cos(cur_state.ax) * cos(cur_state.ay));
+            cur_state.z += int(COLLISION_PRECISION * sin(cur_state.ay));
+            // Seed got there first, but it's in the middle of branch
+            if (!inserted.second && inserted.first->second) {
+                fit_counter--;
+                inserted.first->second = false;
+            }
         }
     }
     fitness = fit_counter;

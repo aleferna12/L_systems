@@ -55,13 +55,13 @@ void Environment::evolve() {
 Plant &Environment::select_plant() {
     double rnd = total_fitness * uniform_random(rng);
     for (auto &org: population) {
-        auto fitness = org.fitness + 1;  // 0 causes problems with the weights
-        if (rnd < fitness) {
+        if (rnd <= (double) org.fitness) {
             return org;
         }
-        rnd -= fitness;
+        rnd -= org.fitness;
     }
-    throw std::runtime_error("Selection criteria failed to pick plant");
+    // All plants have 0 fitness, just pick a random one
+    return population[std::uniform_int_distribution<>(0, (int) population.size() - 1)(rng)];
 }
 
 void Environment::print_stats() {

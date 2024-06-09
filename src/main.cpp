@@ -5,7 +5,7 @@
 
 const int GROWTH_STEPS = 7;
 const int N_POP = 1000;
-const int GENS = 3000;
+const int GENS = 2000;
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -24,6 +24,9 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < GENS; i++) {
         env.evolve();
+
+        if (i % 100 != 0)
+            continue;
 
         std::cout << "Generation :" << i << "\n";
         env.print_stats();

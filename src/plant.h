@@ -11,7 +11,7 @@
 #include <array>
 #include "utility.h"
 
-const unsigned int GROWTH_FACTOR = 100;
+const unsigned int COLLISION_PRECISION = 100;
 const int ROTATION_ANGLE = 30;
 
 const std::array CORE_GENES = {"x+", "x-", "y+", "y-", "*", "[", "]"};
@@ -19,9 +19,9 @@ const std::array CORE_GENES = {"x+", "x-", "y+", "y-", "*", "[", "]"};
 using Genome = std::unordered_map<std::string, std::vector<std::string>>;
 
 struct DevState {
-    double x;
-    double y;
-    double z;
+    int x;
+    int y;
+    int z;
     int ax;
     int ay;
 };
