@@ -14,6 +14,6 @@ double vec_mean(const std::vector<double> &vec);
 
 double vec_variance(const std::vector<double> &vec);
 
-std::string vec_to_str(const std::vector<std::string> &vec);
+std::string vec_to_str(const std::vector<std::string> &vec, const std::string &sep);
 
 #endif //L_SYSTEMS_UTILITY_H

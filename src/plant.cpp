@@ -157,48 +157,77 @@ void Plant::print_genome() const {
     }
 }
 
+unsigned int Plant::end_of_branch(std::vector<std::string>::iterator it) {
+    unsigned int nest = 0;
+    unsigned int offset = 0;
+    for (;it != body.end(); it++) {
+        if (*it == "]") {
+            if (nest == 0)
+                return offset;
+            else
+                nest--;
+        } else if (*it == "[")
+            nest++;
+        offset++;
+    }
+    return offset;
+}
+
 // TODO: this has to change to instead just check if there already is an object in that position and stop
 //  development in that case
-void Plant::update_fitness() {
-    unsigned int fit_counter = 0;
+void Plant::grow_space() {
     DevState cur_state = {};
     std::vector<DevState> state_stack = {};
     // Position -> whether a seed that counted towards fitness was inserted at that position
-    std::unordered_map<std::tuple<int, int, int>, bool, key_hash> increased_fitness;
-    for (auto it = body.begin(); it != body.end(); it++) {
+    std::unordered_map<Pos, bool, key_hash> vertice_is_seed {{}};
+    segments = {};
+    auto it = body.begin();
+    while (it != body.end()) {
         std::string &gene = *it;
-        auto pos_tup = std::make_tuple(cur_state.x, cur_state.y, cur_state.z);
-        auto inserted = increased_fitness.insert({pos_tup, false});
         if (gene == "[") {
             state_stack.push_back(cur_state);
             cur_state = {};
-        } else if (gene == "]" && !state_stack.empty()) {
-            cur_state = state_stack.back();
-            state_stack.pop_back();
+        } else if (gene == "]") {
+            if (!state_stack.empty()) {
+                cur_state = state_stack.back();
+                state_stack.pop_back();
+            }
         } else if (gene[0] == 'x')
             cur_state.ax += gene[1] == '+' ? ROTATION_ANGLE : -ROTATION_ANGLE;
         else if (gene[0] == 'y')
             cur_state.ay += gene[1] == '+' ? ROTATION_ANGLE : -ROTATION_ANGLE;
-        else if (gene == "*") {
-            if (inserted.second) {
-                auto next = it + 1;
-                if (next == body.end() || (!state_stack.empty() && *next == "]")) {
-                    fit_counter++;
-                    inserted.first->second = true;
+        else {
+            auto search = vertice_is_seed.find(cur_state.pos);
+            if (gene == "*") {
+                if (search != vertice_is_seed.end()) {
+                    search->second = true;
                 }
+                it = state_stack.empty() ? body.end() : it + end_of_branch(it);
+                continue;
             }
-        } else {
-            cur_state.x += int(COLLISION_PRECISION * sin(cur_state.ax) * cos(cur_state.ay));
-            cur_state.y += int(COLLISION_PRECISION * cos(cur_state.ax) * cos(cur_state.ay));
-            cur_state.z += int(COLLISION_PRECISION * sin(cur_state.ay));
+            cur_state.pos.x += int(COLLISION_PRECISION * sin(cur_state.ax) * cos(cur_state.ay));
+            cur_state.pos.y += int(COLLISION_PRECISION * cos(cur_state.ax) * cos(cur_state.ay));
+            cur_state.pos.z += int(COLLISION_PRECISION * sin(cur_state.ay));
             // Seed got there first, but it's in the middle of branch
-            if (!inserted.second && inserted.first->second) {
-                fit_counter--;
-                inserted.first->second = false;
+            if (search != vertice_is_seed.end() && search->second) {
+                search->second = false;
             }
+
+            auto inserted = vertice_is_seed.insert({cur_state.pos, false});
+            if (!inserted.second) {
+                it = state_stack.empty() ? body.end() : it + end_of_branch(it);
+                continue;
+            }
+            segments.emplace_back(search->first, inserted.first->first);
         }
+        it++;
     }
-    fitness = fit_counter;
+
+    seeds = {};
+    for (const auto &pos : vertice_is_seed) {
+        if (pos.second)
+            seeds.push_back(pos.first);
+    }
 }
 
 bool Plant::is_growth_gene(const std::string &gene) {
@@ -217,5 +246,29 @@ Plant Plant::germinate() const {
 
 void Plant::develop(unsigned int stage) {
     grow(stage);
-    update_fitness();
+    grow_space();
+}
+
+std::string Plant::body_as_OBJ() const {
+    std::vector<std::string> vertices;
+    std::vector<std::string> instructions;
+    for (int i = 0; i < segments.size(); i++) {
+        const auto &seg = segments[i];
+        vertices.push_back(
+            std::string("v ") +
+            std::to_string(seg.first.x) + " " +
+            std::to_string(seg.first.y) + " " +
+            std::to_string(seg.first.z)
+        );
+        vertices.push_back(
+            std::string("v ") +
+            std::to_string(seg.second.x) + " " +
+            std::to_string(seg.second.y) + " " +
+            std::to_string(seg.second.z)
+        );
+        instructions.push_back(std::string("l ") +
+                               std::to_string(i * 2 + 1) + " " +
+                               std::to_string(i * 2 + 2));
+    }
+    return vec_to_str(vertices, "\n") + "\n" + vec_to_str(instructions, "\n");
 }

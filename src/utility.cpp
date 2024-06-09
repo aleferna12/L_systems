@@ -23,11 +23,11 @@ double vec_variance(const std::vector<double> &vec) {
     return std::sqrt(sq_sum / (double) vec.size());
 }
 
-std::string vec_to_str(const std::vector<std::string> &vec) {
+std::string vec_to_str(const std::vector<std::string> &vec, const std::string &sep) {
     std::ostringstream result;
     for (auto it = vec.begin(); it != vec.end() - 1; it++) {
         result << *it;
-        result << ',';
+        result << sep;
     }
     result << vec.back();
     return result.str();

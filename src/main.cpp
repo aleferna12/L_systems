@@ -5,7 +5,7 @@
 
 const int GROWTH_STEPS = 7;
 const int N_POP = 1000;
-const int GENS = 2000;
+const int GENS = 500;
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -34,11 +34,13 @@ int main(int argc, char *argv[]) {
     }
 
     env.fittest_ever.develop(env.fittest_ever.maturity);
-    std::cout << vec_to_str(env.fittest_ever.body) << "\n";
+    std::cout << vec_to_str(env.fittest_ever.body, std::string()) << "\n";
 
     std::ofstream file;
     file.open(argv[1]);
-    file << vec_to_str(env.fittest_ever.translated_body()) << "\n";
+    file << vec_to_str(env.fittest_ever.translated_body(), ",") << "\n";
 
     env.fittest_ever.print_genome();
+    std::cout << env.fittest_ever.body_as_OBJ() << "\n";
+    std::cout << env.fittest_ever.seeds.size() << "\n";
 }

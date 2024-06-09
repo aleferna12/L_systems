@@ -11,25 +11,30 @@
 #include <array>
 #include "utility.h"
 
-const unsigned int COLLISION_PRECISION = 100;
-const int ROTATION_ANGLE = 30;
+const unsigned int COLLISION_PRECISION = 1000;
+const double ROTATION_ANGLE = M_PI / 6;
 
 const std::array CORE_GENES = {"x+", "x-", "y+", "y-", "*", "[", "]"};
 
 using Genome = std::unordered_map<std::string, std::vector<std::string>>;
 
+struct Pos {
+    int x = 0;
+    int y = 0;
+    int z = 0;
+
+    bool operator==(const Pos& other) const = default;
+};
+
 struct DevState {
-    int x;
-    int y;
-    int z;
-    int ax;
-    int ay;
+    Pos pos = {};
+    double ax = 0.;
+    double ay = M_PI / 2;
 };
 
 struct key_hash {
-    std::size_t operator()(const std::tuple<int, int, int> &k) const
-    {
-        return std::get<0>(k) ^ std::get<1>(k) ^ std::get<2>(k);
+    std::size_t operator()(const Pos &pos) const {
+        return pos.x ^ pos.y ^ pos.z;
     }
 };
 
@@ -46,10 +51,8 @@ public:
 
     void grow(unsigned int stage);
 
-    //! Grows and then updates fitness.
+    //! Grows body and then develops spatially (updates seeds and segments).
     void develop(unsigned int stage);
-
-    void update_fitness();
 
     void mutate(double sub_rate, double dup_rate, double del_rate);
 
@@ -66,10 +69,13 @@ public:
     //! Returns the gene back if its a core gene and "F" otherwise.
     static std::string translate_gene(const std::string &gene);
 
+    std::string body_as_OBJ() const;
+
     std::vector<std::string> body;
     std::vector<std::string> seedling;
     Genome genome;
-    unsigned int fitness = 0;
+    std::vector<std::pair<Pos, Pos>> segments;
+    std::vector<Pos> seeds;
     unsigned int development_stage = 0;
     unsigned int maturity = 0;
 
@@ -79,6 +85,10 @@ private:
     void mut_sub(double sub_rate);
 
     void mut_del(double del_rate);
+
+    unsigned int end_of_branch(std::vector<std::string>::iterator it);
+
+    void grow_space();
 };
 
 #endif //L_SYSTEMS_PLANT_H

@@ -2,7 +2,6 @@
 // Created by alefe on 09/06/2024.
 //
 
-#include <stdexcept>
 #include <iostream>
 #include "environment.h"
 
@@ -37,16 +36,16 @@ void Environment::evolve() {
 
     total_fitness = 0;
     for (const auto &org : population)
-        total_fitness += org.fitness;
+        total_fitness += org.seeds.size();
 
     std::vector<Plant> new_population;
     for (int _ = 0; _ < population.size(); _++) {
         auto &org = select_plant();
         new_population.push_back(org.germinate());
 
-        if (org.fitness > fittest_currently.fitness)
+        if (org.seeds.size() > fittest_currently.seeds.size())
             fittest_currently = org;
-        if (org.fitness > fittest_ever.fitness)
+        if (org.seeds.size() > fittest_ever.seeds.size())
             fittest_ever = org;
     }
     population = new_population;
@@ -55,10 +54,10 @@ void Environment::evolve() {
 Plant &Environment::select_plant() {
     double rnd = total_fitness * uniform_random(rng);
     for (auto &org: population) {
-        if (rnd <= (double) org.fitness) {
+        if (rnd <= (double) org.seeds.size()) {
             return org;
         }
-        rnd -= org.fitness;
+        rnd -= (double) org.seeds.size();
     }
     // All plants have 0 fitness, just pick a random one
     return population[std::uniform_int_distribution<>(0, (int) population.size() - 1)(rng)];
