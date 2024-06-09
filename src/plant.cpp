@@ -37,6 +37,9 @@ void Plant::randomize_genome(unsigned int size) {
     }
     mut_sub(1);  // One time per target gene. Ideally we would make sure to mutate both genes instead...
     mut_sub(1);
+
+    for (auto &gene : seedling)
+        gene = random_gene().first;
 }
 
 void Plant::grow(unsigned int stage) {
