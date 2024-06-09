@@ -8,13 +8,18 @@ const int N_POP = 1000;
 const int GENS = 3000;
 
 int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        std::cerr << "Incorrect number of arguments. Provide an output file for the plant body plan.\n";
+        return EXIT_FAILURE;
+    }
+
     Environment env(
         N_POP,
         5,
         GROWTH_STEPS,
         0.05,
         0.005,
-        0.
+        0.005
     );
 
     for (int i = 0; i < GENS; i++) {
@@ -29,7 +34,7 @@ int main(int argc, char *argv[]) {
     std::cout << vec_to_str(env.fittest_ever.body) << "\n";
 
     std::ofstream file;
-    file.open("./out.txt");
+    file.open(argv[1]);
     file << vec_to_str(env.fittest_ever.translated_body()) << "\n";
 
     env.fittest_ever.print_genome();
