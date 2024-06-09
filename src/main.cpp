@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     std::cout << vec_to_str(env.fittest_ever.body) << "\n";
 
     std::ofstream file;
-    file.open("../out.txt");
+    file.open("./out.txt");
     file << vec_to_str(env.fittest_ever.translated_body()) << "\n";
 
     env.fittest_ever.print_genome();
