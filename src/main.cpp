@@ -1,11 +1,9 @@
 #include <iostream>
 #include <fstream>
-#include "plant.h"
-#include "environment.h"
-
-const int GROWTH_STEPS = 7;
-const int N_POP = 1000;
-const int GENS = 500;
+#include <filesystem>
+#include "tree.h"
+#include "forest.h"
+#include "params.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -13,7 +11,11 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    Environment env(
+    auto outdir = std::string(argv[1]);
+    if (!std::filesystem::create_directory(outdir))
+        throw std::runtime_error("Directory " + outdir + " already exists.");
+
+    Forest forest(
         N_POP,
         10,
         GROWTH_STEPS,
@@ -23,24 +25,34 @@ int main(int argc, char *argv[]) {
     );
 
     for (int i = 0; i < GENS; i++) {
-        env.evolve();
+        forest.evolve();
 
         if (i % 100 != 0)
             continue;
 
-        std::cout << "Generation :" << i << "\n";
-        env.print_stats();
+        std::cout << "Generation: " << i << "\n";
+        forest.print_stats();
         std::cout << "\n";
     }
 
-    env.fittest_ever.develop(env.fittest_ever.maturity);
-    std::cout << vec_to_str(env.fittest_ever.body, std::string()) << "\n";
+    forest.fittest_ever.develop(forest.fittest_ever.maturity);
+    std::cout << "Best fitness: " << forest.fittest_ever.fitness() << "\n";
 
     std::ofstream file;
-    file.open(argv[1]);
-    file << vec_to_str(env.fittest_ever.translated_body(), ",") << "\n";
 
-    env.fittest_ever.print_genome();
-    std::cout << env.fittest_ever.body_as_OBJ() << "\n";
-    std::cout << env.fittest_ever.seeds.size() << "\n";
+    file.open(outdir + "/fittest_body.txt");
+    file << vec_to_str(forest.fittest_ever.body, "") << "\n";
+    file.close();
+
+    file.open(outdir + "/fittest_genome.txt");
+    file << forest.fittest_ever.genome_as_string();
+    file.close();
+
+    file.open(outdir + "/fittest_segments.obj");
+    file << forest.fittest_ever.segments_as_OBJ();
+    file.close();
+
+    file.open(outdir + "/fittest_seeds.obj");
+    file << forest.fittest_ever.seeds_as_OBJ();
+    file.close();
 }

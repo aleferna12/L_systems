@@ -2,17 +2,15 @@
 // Created by aleferna on 03/06/24.
 //
 
-#ifndef L_SYSTEMS_PLANT_H
-#define L_SYSTEMS_PLANT_H
+#ifndef L_SYSTEMS_TREE_H
+#define L_SYSTEMS_TREE_H
 
 #include <unordered_map>
 #include <string>
 #include <vector>
 #include <array>
 #include "utility.h"
-
-const unsigned int COLLISION_PRECISION = 1000;
-const double ROTATION_ANGLE = M_PI / 6;
+#include "params.h"
 
 const std::array CORE_GENES = {"x+", "x-", "y+", "y-", "*", "[", "]"};
 
@@ -29,36 +27,39 @@ struct Pos {
 struct DevState {
     Pos pos = {};
     double ax = 0.;
-    double ay = M_PI / 2;
+    double ay = 0;
 };
 
-struct key_hash {
+struct pos_hash {
     std::size_t operator()(const Pos &pos) const {
         return pos.x ^ pos.y ^ pos.z;
     }
 };
 
-class Plant {
+class Tree {
 public:
-    Plant(const std::vector<std::string> &seedling, Genome genome, unsigned int maturity);
+    Tree(const std::vector<std::string> &seedling, Genome genome, unsigned int maturity);
 
-    Plant(unsigned int genome_size, unsigned int maturity);
+    Tree(unsigned int genome_size, unsigned int maturity);
 
-    Plant() = default;
+    Tree() = default;
 
-    //! Gets a clone of this plant before any growth took place.
-    Plant germinate() const;
+    //! Gets a clone of this tree before any growth took place.
+    Tree germinate() const;
 
-    void grow(unsigned int stage);
+    //! Tree growth in space (updates segments and seeds).
+    void grow();
 
-    //! Grows body and then develops spatially (updates seeds and segments).
+    //! Tree body plan development.
     void develop(unsigned int stage);
 
     void mutate(double sub_rate, double dup_rate, double del_rate);
 
+    double fitness() const;
+
     std::vector<std::string> translated_body() const;
 
-    void print_genome() const;
+    std::string genome_as_string() const;
 
     const auto &random_gene() const;
 
@@ -69,7 +70,9 @@ public:
     //! Returns the gene back if its a core gene and "F" otherwise.
     static std::string translate_gene(const std::string &gene);
 
-    std::string body_as_OBJ() const;
+    std::string segments_as_OBJ() const;
+
+    std::string seeds_as_OBJ() const;
 
     std::vector<std::string> body;
     std::vector<std::string> seedling;
@@ -87,8 +90,6 @@ private:
     void mut_del(double del_rate);
 
     unsigned int end_of_branch(std::vector<std::string>::iterator it);
-
-    void grow_space();
 };
 
-#endif //L_SYSTEMS_PLANT_H
+#endif //L_SYSTEMS_TREE_H

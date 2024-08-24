@@ -2,15 +2,15 @@
 // Created by aleferna on 03/06/24.
 //
 
-#include "plant.h"
-
+#include "tree.h"
 #include <utility>
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+#include <sstream>
 
-Plant::Plant(
+Tree::Tree(
     const std::vector<std::string> &seedling,
     Genome genome,
     unsigned int maturity
@@ -20,12 +20,12 @@ Plant::Plant(
     maturity(maturity) {
 }
 
-const auto &Plant::random_gene() const {
+const auto &Tree::random_gene() const {
     std::uniform_int_distribution<> uniform_genome(0, (int) genome.size() - 1);
     return *std::next(std::begin(genome), uniform_genome(rng));
 }
 
-void Plant::randomize_genome(unsigned int size) {
+void Tree::randomize_genome(unsigned int size) {
     if (size > 30)
         throw std::runtime_error("Max 'size' is 30");
 
@@ -42,12 +42,7 @@ void Plant::randomize_genome(unsigned int size) {
         gene = random_gene().first;
 }
 
-void Plant::grow(unsigned int stage) {
-    if (stage > maturity) {
-        std::cerr << "Trying to grow plant post maturity stage, plant will grow to maturity instead.\n";
-        stage = maturity;
-    }
-
+void Tree::develop(unsigned int stage) {
     for (int i = 0; i < stage; i++) {
         std::vector<std::string> new_body;
         for (auto &gene: body) {
@@ -68,14 +63,14 @@ void Plant::grow(unsigned int stage) {
     }
 }
 
-std::string Plant::translate_gene(const std::string &gene) {
+std::string Tree::translate_gene(const std::string &gene) {
     if (is_growth_gene(gene)) {
         return "F";
     }
     return gene;
 }
 
-std::vector<std::string> Plant::translated_body() const {
+std::vector<std::string> Tree::translated_body() const {
     std::vector<std::string> ret;
     for (const auto &gene : body) {
         ret.push_back(translate_gene(gene));
@@ -83,13 +78,13 @@ std::vector<std::string> Plant::translated_body() const {
     return ret;
 }
 
-void Plant::mutate(double sub_rate, double dup_rate, double del_rate) {
+void Tree::mutate(double sub_rate, double dup_rate, double del_rate) {
     mut_sub(sub_rate);
     mut_del(del_rate);
     mut_dup(dup_rate);
 }
 
-void Plant::mut_dup(double dup_rate) {
+void Tree::mut_dup(double dup_rate) {
     Genome to_add;
     for (auto &gene : genome) {
         if (uniform_random(rng) > dup_rate)
@@ -109,7 +104,7 @@ void Plant::mut_dup(double dup_rate) {
     }
 }
 
-void Plant::mut_sub(double sub_rate) {
+void Tree::mut_sub(double sub_rate) {
     for (auto &gene : genome) {
         if (uniform_random(rng) > sub_rate)
             continue;
@@ -126,7 +121,7 @@ void Plant::mut_sub(double sub_rate) {
     }
 }
 
-void Plant::mut_del(double del_rate) {
+void Tree::mut_del(double del_rate) {
     if (genome.size() == 1)
         return;
 
@@ -149,15 +144,17 @@ void Plant::mut_del(double del_rate) {
         genome.erase(gene);
 }
 
-void Plant::print_genome() const {
+std::string Tree::genome_as_string() const {
+    std::stringstream gen_ss;
     for (auto &gene : genome) {
-        std::cout << gene.first << " -> ";
-        std::cout << gene.second[0] << " | " << gene.second[1];
-        std::cout << "\n";
+        gen_ss << gene.first << " -> ";
+        gen_ss << gene.second[0] << " | " << gene.second[1];
+        gen_ss << "\n";
     }
+    return gen_ss.str();
 }
 
-unsigned int Plant::end_of_branch(std::vector<std::string>::iterator it) {
+unsigned int Tree::end_of_branch(std::vector<std::string>::iterator it) {
     unsigned int nest = 0;
     unsigned int offset = 0;
     for (;it != body.end(); it++) {
@@ -173,13 +170,11 @@ unsigned int Plant::end_of_branch(std::vector<std::string>::iterator it) {
     return offset;
 }
 
-// TODO: this has to change to instead just check if there already is an object in that position and stop
-//  development in that case
-void Plant::grow_space() {
+void Tree::grow() {
     DevState cur_state = {};
     std::vector<DevState> state_stack = {};
     // Position -> whether a seed that counted towards fitness was inserted at that position
-    std::unordered_map<Pos, bool, key_hash> vertice_is_seed {{}};
+    std::unordered_map<Pos, bool, pos_hash> vertice_is_seed {{}};
     segments = {};
     auto it = body.begin();
     while (it != body.end()) {
@@ -198,29 +193,20 @@ void Plant::grow_space() {
             cur_state.ay += gene[1] == '+' ? ROTATION_ANGLE : -ROTATION_ANGLE;
         else {
             auto search = vertice_is_seed.find(cur_state.pos);
-            if (gene == "*") {
-                if (search != vertice_is_seed.end()) {
-                    search->second = true;
-                }
-                it = state_stack.empty() ? body.end() : it + end_of_branch(it);
-                continue;
-            }
+            if (search != vertice_is_seed.end())
+                search->second = false;
+
             cur_state.pos.x += int(COLLISION_PRECISION * sin(cur_state.ax) * cos(cur_state.ay));
             cur_state.pos.y += int(COLLISION_PRECISION * cos(cur_state.ax) * cos(cur_state.ay));
             cur_state.pos.z += int(COLLISION_PRECISION * sin(cur_state.ay));
-            // Seed got there first, but it's in the middle of branch
-            if (search != vertice_is_seed.end() && search->second) {
-                search->second = false;
-            }
 
-            auto inserted = vertice_is_seed.insert({cur_state.pos, false});
-            if (!inserted.second) {
-                it = state_stack.empty() ? body.end() : it + end_of_branch(it);
-                continue;
-            }
-            segments.emplace_back(search->first, inserted.first->first);
+            vertice_is_seed.insert({cur_state.pos, gene == "*"});
+            segments.emplace_back(search->first, cur_state.pos);
         }
-        it++;
+        if (SEED_SKIPS & gene == "*")
+            it = state_stack.empty() ? body.end() : it + end_of_branch(it);
+        else
+            it++;
     }
 
     seeds = {};
@@ -230,45 +216,59 @@ void Plant::grow_space() {
     }
 }
 
-bool Plant::is_growth_gene(const std::string &gene) {
+bool Tree::is_growth_gene(const std::string &gene) {
     return std::find(CORE_GENES.begin(), CORE_GENES.end(), gene) == CORE_GENES.end();
 }
 
-Plant::Plant(unsigned int genome_size, unsigned int maturity) : maturity(maturity) {
+Tree::Tree(unsigned int genome_size, unsigned int maturity) : maturity(maturity) {
     randomize_genome(genome_size);
     seedling.push_back(random_gene().first);
     body = seedling;
 }
 
-Plant Plant::germinate() const {
+Tree Tree::germinate() const {
     return {seedling, genome, maturity};
 }
 
-void Plant::develop(unsigned int stage) {
-    grow(stage);
-    grow_space();
+std::string Tree::segments_as_OBJ() const {
+    std::vector<std::string> vertices;
+    std::vector<std::string> lines;
+    for (auto const &[v1, v2] : segments) {
+        vertices.push_back(
+            "v " +
+            std::to_string(v1.x / (double) COLLISION_PRECISION) + " " +
+            std::to_string(v1.y / (double) COLLISION_PRECISION) + " " +
+            std::to_string(v1.z / (double) COLLISION_PRECISION)
+        );
+        vertices.push_back(
+            "v " +
+            std::to_string(v2.x / (double) COLLISION_PRECISION) + " " +
+            std::to_string(v2.y / (double) COLLISION_PRECISION) + " " +
+            std::to_string(v2.z / (double) COLLISION_PRECISION)
+        );
+        lines.push_back(
+            "l " +
+            std::to_string(vertices.size() - 1) + " " +
+            std::to_string(vertices.size())
+        );
+    }
+    return vec_to_str(vertices, "\n") + "\n" + vec_to_str(lines, "\n") + "\n";
 }
 
-std::string Plant::body_as_OBJ() const {
+std::string Tree::seeds_as_OBJ() const {
     std::vector<std::string> vertices;
-    std::vector<std::string> instructions;
-    for (int i = 0; i < segments.size(); i++) {
-        const auto &seg = segments[i];
+    for (auto const &seed : seeds) {
         vertices.push_back(
-            std::string("v ") +
-            std::to_string(seg.first.x) + " " +
-            std::to_string(seg.first.y) + " " +
-            std::to_string(seg.first.z)
+            "v " +
+            std::to_string(seed.x / (double) COLLISION_PRECISION) + " " +
+            std::to_string(seed.y / (double) COLLISION_PRECISION) + " " +
+            std::to_string(seed.z / (double) COLLISION_PRECISION)
         );
-        vertices.push_back(
-            std::string("v ") +
-            std::to_string(seg.second.x) + " " +
-            std::to_string(seg.second.y) + " " +
-            std::to_string(seg.second.z)
-        );
-        instructions.push_back(std::string("l ") +
-                               std::to_string(i * 2 + 1) + " " +
-                               std::to_string(i * 2 + 2));
     }
-    return vec_to_str(vertices, "\n") + "\n" + vec_to_str(instructions, "\n");
+    return vec_to_str(vertices, "\n") + "\n";
+}
+
+// TODO: introduce other factors such as verticality, distance from base etc
+double Tree::fitness() const {
+    return (double) seeds.size();
 }
