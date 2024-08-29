@@ -13,4 +13,6 @@ add_executable(
     src/forest.cpp
     src/forest.h
         src/params.h
+        src/genome.cpp
+        src/genome.h
 )

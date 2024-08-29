@@ -38,7 +38,7 @@ void Forest::evolve() {
     develop(maturity);
     grow();
     for (auto &tree : population)
-        tree.mutate(mut_sub, mut_dup, mut_del);
+        tree.genome.mutate(mut_sub, mut_dup, mut_del);
 
     total_fitness = 0.;
     for (const auto &tree : population)
@@ -46,7 +46,7 @@ void Forest::evolve() {
 
     std::vector<Tree> new_population;
     for (int _ = 0; _ < population.size(); _++) {
-        auto &tree = select_plant();
+        auto &tree = selectPlant();
         new_population.push_back(tree.germinate());
 
         if (tree.seeds.size() > fittest_currently.seeds.size())
@@ -57,7 +57,7 @@ void Forest::evolve() {
     population = new_population;
 }
 
-Tree &Forest::select_plant() {
+Tree &Forest::selectPlant() {
     double rnd = total_fitness * uniform_random(rng);
     for (auto &tree: population) {
         if (rnd <= tree.fitness()) {
@@ -69,7 +69,7 @@ Tree &Forest::select_plant() {
     return population[std::uniform_int_distribution<>(0, (int) population.size() - 1)(rng)];
 }
 
-void Forest::print_stats() {
+void Forest::printStats() {
     unsigned int tot_gen_size = 0;
     for (const auto &tree : population)
         tot_gen_size += tree.genome.size();
