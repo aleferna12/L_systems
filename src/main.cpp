@@ -1,9 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include "tree.h"
 #include "forest.h"
 #include "params.h"
+#include "utility.h"
+
+//TODO: make Model class (put params and random generation there)
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -17,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     Forest forest(
         N_POP,
-        10,
+        50,
         GROWTH_STEPS,
         0.05,
         0.005,
@@ -31,7 +33,7 @@ int main(int argc, char *argv[]) {
             continue;
 
         std::cout << "Generation: " << i << "\n";
-        forest.print_stats();
+        forest.printStats();
         std::cout << "\n";
     }
 
@@ -41,18 +43,18 @@ int main(int argc, char *argv[]) {
     std::ofstream file;
 
     file.open(outdir + "/fittest_body.txt");
-    file << vec_to_str(forest.fittest_ever.body, "") << "\n";
+    file << vecToStr(forest.fittest_ever.body, "") << "\n";
     file.close();
 
     file.open(outdir + "/fittest_genome.txt");
-    file << forest.fittest_ever.genome_as_string();
+    file << forest.fittest_ever.genome.stringRepresentation();
     file.close();
 
     file.open(outdir + "/fittest_segments.obj");
-    file << forest.fittest_ever.segments_as_OBJ();
+    file << forest.fittest_ever.segmentsAsOBJ();
     file.close();
 
     file.open(outdir + "/fittest_seeds.obj");
-    file << forest.fittest_ever.seeds_as_OBJ();
+    file << forest.fittest_ever.seedsAsOBJ();
     file.close();
 }

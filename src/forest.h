@@ -25,12 +25,13 @@ public:
     void develop(unsigned int stage);
 
     //! Random weighted selection of a plant based on fitness.
-    Tree &select_plant();
+    Tree &selectPlant();
 
-    void print_stats();
+    void printStats();
 
     std::vector<Tree> population;
     unsigned int maturity;
+    // TODO: muts should be global parameters
     double mut_sub;
     double mut_dup;
     double mut_del;
