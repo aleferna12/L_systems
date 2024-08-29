@@ -12,7 +12,7 @@ const int N_POP = 500;
 const int GENS = 1000;
 // TODO: decide if this should be true of false (i dont think it should be a parameter but maybe).
 // True leads to faster runtimes but lower fitness (maybe also tends to look cooler?).
-const bool SEED_SKIPS = true;
+const bool SEED_SKIPS = false;
 const unsigned int MAX_GENOME_SIZE = 100;
 // Make sure to balance this with GROWTH_STEPS otherwise you wont have enough memory
 const unsigned int GENE_ACTIVATION_LENGTH = 2;  // Usually 2 or 3
