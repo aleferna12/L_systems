@@ -5,30 +5,29 @@
 #include <utility>
 #include <stdexcept>
 #include <unordered_set>
-#include <iostream>
 #include "tree.h"
 
 Tree::Tree(
     const std::vector<std::string> &seedling,
     Genome genome,
     unsigned int maturity
-) : body(seedling),
+) : genome(std::move(genome)),
     seedling(seedling),
-    genome(std::move(genome)),
-    maturity(maturity) {
-}
+    body(seedling),
+    maturity(maturity) {}
 
 Tree::Tree(
-    unsigned int genome_size,
-    unsigned int maturity
-) : maturity(maturity),
-    genome(genome_size) {
-    seedling = {genome.getRandomGene()};
-    body = seedling;
-}
+    const Genome &genome,
+    unsigned int maturity,
+    std::mt19937 &rng
+) : Tree(
+    {genome.getRandomGene(rng)},
+    genome,
+    maturity
+) {}
 
 void Tree::develop(unsigned int stage) {
-    for (int i = 0; i < stage; i++) {
+    for (unsigned int i = 0; i < stage; i++) {
         std::vector<std::string> new_body;
         for (auto &gene: body) {
             auto target_genes = genome.geneActivates(gene);
@@ -88,22 +87,22 @@ void Tree::grow() {
                 state_stack.pop_back();
             }
         } else if (gene[0] == 'x')
-            cur_state.ax += gene[1] == '+' ? ROTATION_ANGLE : -ROTATION_ANGLE;
+            cur_state.ax += gene[1] == '+' ? rotation_angle : -rotation_angle;
         else if (gene[0] == 'y')
-            cur_state.ay += gene[1] == '+' ? ROTATION_ANGLE : -ROTATION_ANGLE;
+            cur_state.ay += gene[1] == '+' ? rotation_angle : -rotation_angle;
         else {
             auto search = vertice_is_seed.find(cur_state.pos);
             if (search != vertice_is_seed.end())
                 search->second = false;
 
-            cur_state.pos.x += int(COLLISION_PRECISION * sin(cur_state.ax) * cos(cur_state.ay));
-            cur_state.pos.y += int(COLLISION_PRECISION * cos(cur_state.ax) * cos(cur_state.ay));
-            cur_state.pos.z += int(COLLISION_PRECISION * sin(cur_state.ay));
+            cur_state.pos.x += int(collision_precision * sin(cur_state.ax) * cos(cur_state.ay));
+            cur_state.pos.y += int(collision_precision * cos(cur_state.ax) * cos(cur_state.ay));
+            cur_state.pos.z += int(collision_precision * sin(cur_state.ay));
 
             vertice_is_seed.insert({cur_state.pos, gene == "*"});
             segments.emplace_back(search->first, cur_state.pos);
         }
-        if (SEED_SKIPS & gene == "*")
+        if (seed_skips & (gene == "*"))
             it = state_stack.empty() ? body.end() : it + endOfBranch(it);
         else
             it++;
@@ -123,18 +122,18 @@ Tree Tree::germinate() const {
 std::string Tree::segmentsAsOBJ() const {
     std::vector<std::string> vertices;
     std::vector<std::string> lines;
-    for (auto const &[v1, v2] : segments) {
+    for (const auto &[v1, v2] : segments) {
         vertices.push_back(
             "v " +
-            std::to_string(v1.x / (double) COLLISION_PRECISION) + " " +
-            std::to_string(v1.y / (double) COLLISION_PRECISION) + " " +
-            std::to_string(v1.z / (double) COLLISION_PRECISION)
+            std::to_string(v1.x / (double) collision_precision) + " " +
+            std::to_string(v1.y / (double) collision_precision) + " " +
+            std::to_string(v1.z / (double) collision_precision)
         );
         vertices.push_back(
             "v " +
-            std::to_string(v2.x / (double) COLLISION_PRECISION) + " " +
-            std::to_string(v2.y / (double) COLLISION_PRECISION) + " " +
-            std::to_string(v2.z / (double) COLLISION_PRECISION)
+            std::to_string(v2.x / (double) collision_precision) + " " +
+            std::to_string(v2.y / (double) collision_precision) + " " +
+            std::to_string(v2.z / (double) collision_precision)
         );
         lines.push_back(
             "l " +
@@ -147,12 +146,12 @@ std::string Tree::segmentsAsOBJ() const {
 
 std::string Tree::seedsAsOBJ() const {
     std::vector<std::string> vertices;
-    for (auto const &seed : seeds) {
+    for (const auto &seed : seeds) {
         vertices.push_back(
             "v " +
-            std::to_string(seed.x / (double) COLLISION_PRECISION) + " " +
-            std::to_string(seed.y / (double) COLLISION_PRECISION) + " " +
-            std::to_string(seed.z / (double) COLLISION_PRECISION)
+            std::to_string(seed.x / (double) collision_precision) + " " +
+            std::to_string(seed.y / (double) collision_precision) + " " +
+            std::to_string(seed.z / (double) collision_precision)
         );
     }
     return vecToStr(vertices, "\n") + "\n";

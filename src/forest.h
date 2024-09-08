@@ -10,34 +10,37 @@
 
 class Forest {
 public:
+    //! Creates a forest and populate it with 'n' trees.
     Forest(unsigned int n,
-           unsigned int genome_size,
            unsigned int maturity,
+           unsigned int genome_size,
+           unsigned int max_genome_size,
            double mut_sub,
            double mut_dup,
-           double mut_del);
+           double mut_del,
+           std::mt19937 &rng);
+
+    //! Creates an empty forest.
+    Forest() = default;
 
     //! Evolutionary step.
-    void evolve();
+    void evolve(std::mt19937 &rng);
 
-    void grow();
-
-    void develop(unsigned int stage);
+    //! Selects a random tree from the population.
+    Tree &randomTree(std::mt19937 &rng);
 
     //! Random weighted selection of a plant based on fitness.
-    Tree &selectPlant();
+    Tree &randomFitTree(std::mt19937 &rng);
 
+    //! Print some stats about the population.
     void printStats();
 
     std::vector<Tree> population;
-    unsigned int maturity;
-    // TODO: muts should be global parameters
-    double mut_sub;
-    double mut_dup;
-    double mut_del;
+    std::optional<Tree> fittest_ever;
+    std::optional<Tree> fittest_currently;
     double total_fitness = 0;
-    Tree fittest_ever;
-    Tree fittest_currently;
+
+    void save_fittest(const std::string &outdir);
 };
 
 

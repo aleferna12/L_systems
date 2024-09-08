@@ -6,7 +6,6 @@
 #include <sstream>
 #include "utility.h"
 
-std::mt19937 rng(std::random_device{}());
 std::uniform_real_distribution<> uniform_random(0, 1);
 
 double vecMean(const std::vector<double> &vec) {

@@ -7,8 +7,7 @@
 
 #include <random>
 
-extern std::mt19937 rng;
-extern std::uniform_real_distribution<double> uniform_random;
+extern std::uniform_real_distribution<> uniform_random;
 
 double vecMean(const std::vector<double> &vec);
 
