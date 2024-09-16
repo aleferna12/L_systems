@@ -23,6 +23,9 @@ double vecVariance(const std::vector<double> &vec) {
 }
 
 std::string vecToStr(const std::vector<std::string> &vec, const std::string &sep) {
+    if (vec.empty())
+        return "";
+
     std::ostringstream result;
     for (auto it = vec.begin(); it != vec.end() - 1; it++) {
         result << *it;
