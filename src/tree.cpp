@@ -27,22 +27,24 @@ Tree::Tree(
 ) {}
 
 void Tree::develop(unsigned int stage) {
+    std::vector<std::string> new_body;
     for (unsigned int i = 0; i < stage; i++) {
-        std::vector<std::string> new_body;
-        for (auto &gene: body) {
+        new_body.clear();
+
+        for (auto &gene : body) {
             auto target_genes = genome.geneActivates(gene);
-            if (target_genes == nullptr) {  // Either core gene or gene left behind by deletion
+            if (target_genes == nullptr) {
                 new_body.push_back(gene);
                 continue;
             }
-            for (auto &target_gene: *target_genes) {
+            for (auto &target_gene : *target_genes) {
                 if (!target_gene.empty())
                     new_body.push_back(target_gene);
             }
         }
-        body = new_body;
-        development_stage++;
+        std::swap(body, new_body);
     }
+    development_stage += stage;
 }
 
 std::vector<std::string> Tree::translatedBody() const {

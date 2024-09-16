@@ -15,7 +15,7 @@ struct Parameters {
     const bool replace_dir = true;
     const int generations = 500;
     // Use '0' for a random seed
-    const unsigned int seed = 89234796;
+    const unsigned int seed = 9234796;
     // Forest
     // ======
     const int n_pop = 500;
