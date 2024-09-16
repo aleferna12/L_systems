@@ -18,9 +18,8 @@ public:
     void run() { run(parameters.generations); }
 
     Parameters parameters;
+    std::mt19937 rng;
     Forest forest;
-
-    std::mt19937 rng {std::random_device{}()};
 };
 
 

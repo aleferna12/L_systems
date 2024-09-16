@@ -14,6 +14,7 @@ struct Parameters {
     // TODO: set to false once I implement a way to read parameters from the terminal
     const bool replace_dir = true;
     const int generations = 500;
+    const unsigned int seed = 89234796;
     // Forest
     // ======
     const int n_pop = 500;

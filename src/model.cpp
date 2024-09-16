@@ -9,6 +9,7 @@
 
 Model::Model(const Parameters &parameters) :
     parameters(parameters),
+    rng(parameters.seed == 0 ? std::random_device{}() : parameters.seed),
     forest(
         parameters.n_pop,
         parameters.maturity,
