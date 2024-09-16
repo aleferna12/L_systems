@@ -6,15 +6,18 @@ set(CMAKE_CXX_STANDARD 23)
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
+
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_CXX_FLAGS "-O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS "-g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 elseif (CMAKE_BUILD_TYPE STREQUAL "Profile")
-    set(CMAKE_CXX_FLAGS "-g -pg -no-pie")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -no-pie")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+
+message("Compilation flags: " ${CMAKE_CXX_FLAGS})
 
 add_executable(
     L_systems
