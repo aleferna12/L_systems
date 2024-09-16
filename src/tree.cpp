@@ -80,11 +80,12 @@ void Tree::grow() {
     auto it = body.begin();
     while (it != body.end()) {
         std::string &gene = *it;
+        bool inside_branch = !state_stack.empty();
         if (gene == "[") {
             state_stack.push_back(cur_state);
             cur_state = {};
         } else if (gene == "]") {
-            if (!state_stack.empty()) {
+            if (inside_branch) {
                 cur_state = state_stack.back();
                 state_stack.pop_back();
             }
@@ -97,20 +98,22 @@ void Tree::grow() {
             if (search != vertice_is_seed.end())
                 search->second = false;
 
-            cur_state.pos.x += int(collision_precision * sin(cur_state.ax) * cos(cur_state.ay));
-            cur_state.pos.y += int(collision_precision * cos(cur_state.ax) * cos(cur_state.ay));
+            double cos_ay = cos(cur_state.ay);
+            cur_state.pos.x += int(collision_precision * sin(cur_state.ax) * cos_ay);
+            cur_state.pos.y += int(collision_precision * cos(cur_state.ax) * cos_ay);
             cur_state.pos.z += int(collision_precision * sin(cur_state.ay));
 
             vertice_is_seed.insert({cur_state.pos, gene == "*"});
             segments.emplace_back(search->first, cur_state.pos);
         }
-        if (seed_skips & (gene == "*"))
-            it = state_stack.empty() ? body.end() : it + endOfBranch(it);
+        if (seed_skips && (gene == "*"))
+            it = !inside_branch ? body.end() : it + endOfBranch(it);
         else
             it++;
     }
 
     seeds = {};
+    seeds.reserve(vertice_is_seed.size());
     for (const auto &pos : vertice_is_seed) {
         if (pos.second)
             seeds.push_back(pos.first);
