@@ -20,7 +20,7 @@ class Genome {
 public:
     //! Creates a randomized genome of size 'size'.
     Genome(unsigned int size, unsigned int max_size, double mut_sub, double mut_dup, double mut_del,
-           std::mt19937 &rng);
+           unsigned int gene_activation_length, std::mt19937 &rng);
 
     size_t size() const {
         return activation_map.size();
@@ -55,8 +55,8 @@ public:
     double mut_sub;
     double mut_dup;
     double mut_del;
+    unsigned int gene_activation_length;
 
-    unsigned int gene_activation_length = 2;
     double core_gene_substitution_chance = 0.5;
     //TODO: should this be an unordered_set? benchmark
     static constexpr std::array core_genes = {"x+", "x-", "y+", "y-", "*", "[", "]"};

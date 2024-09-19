@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <regex>
 #include "forest.h"
 
 Forest::Forest(
@@ -14,6 +15,7 @@ Forest::Forest(
     double mut_sub,
     double mut_dup,
     double mut_del,
+    unsigned int gene_activation_length,
     std::mt19937 &rng
 ) {
     population.reserve(n);
@@ -25,6 +27,7 @@ Forest::Forest(
                 mut_sub,
                 mut_dup,
                 mut_del,
+                gene_activation_length,
                 rng
             ),
             maturity,
@@ -46,7 +49,7 @@ void Forest::evolve(std::mt19937 &rng) {
         total_fitness += tree.fitness();
 
     std::vector<Tree> new_population;
-    for (unsigned int _ = 0; _ < population.size(); _++) {
+    for (size_t _ = 0; _ < population.size(); _++) {
         auto &tree = randomFitTree(rng);
         new_population.push_back(tree.germinate());
 
@@ -85,13 +88,14 @@ void Forest::printStats() {
         std::cout << "Best fitness: " << fittest_ever.value().fitness() << "\n";
 }
 
-void Forest::save_fittest(const std::string &outdir) {
+void Forest::saveFittest(const std::string &outdir) {
     if (!fittest_ever.has_value())
         throw std::runtime_error("Forest does not have a fittest plant, "
-                                 "did you run the simulation for at least one generation?");
+                                 "did you evolve the population at least once?");
 
     auto fittest = fittest_ever.value();
     fittest.develop(fittest.maturity);
+    fittest.grow();
 
     std::ofstream file;
 
@@ -112,5 +116,40 @@ void Forest::save_fittest(const std::string &outdir) {
     file.close();
 
     std::cout << "Saved information about fittest tree (fitness = " <<
-    fittest.fitness() << ") to: '" << outdir << "'\n";
+              fittest.fitness() << ") to: '" << outdir << "'\n";
+}
+
+void Forest::saveForest(const std::string &outdir) const {
+    for (size_t i = 0; i < population.size(); i++) {
+        auto tree = population[i];
+        tree.develop();
+        tree.grow();
+
+        unsigned int width = ceil(sqrt((double) population.size()));
+        unsigned int x = i / width * 10;
+        unsigned int z = i % width * 10;
+        for (auto &seg : tree.segments) {
+            seg.first.x += x;
+            seg.second.x += x;
+            seg.first.z += z;
+            seg.second.z += z;
+        }
+
+        for (auto &seed : tree.seeds) {
+            seed.x += x;
+            seed.z += z;
+        }
+
+        std::ofstream file;
+        std::string basename = outdir + "/" + std::to_string(i) + "_";
+
+        file.open(basename + "segments.obj");
+        file << tree.segmentsAsOBJ();
+        file.close();
+
+        file.open(basename + "seeds.obj");
+        file << tree.seedsAsOBJ();
+        file.close();
+    }
+    std::cout << "Saved forest to: '" << outdir << "'\n";
 }

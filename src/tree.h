@@ -8,28 +8,9 @@
 #include <string>
 #include <vector>
 #include "utility.h"
+#include "pos.h"
 #include "parameters.h"
 #include "genome.h"
-
-struct Pos {
-    int x = 0;
-    int y = 0;
-    int z = 0;
-
-    bool operator==(const Pos& other) const = default;
-};
-
-struct DevState {
-    Pos pos = {};
-    double ax = 0.;
-    double ay = 0;
-};
-
-struct pos_hash {
-    std::size_t operator()(const Pos &pos) const {
-        return pos.x ^ pos.y ^ pos.z;
-    }
-};
 
 class Tree {
 public:
@@ -65,13 +46,13 @@ public:
     unsigned int collision_precision = 1000;
     double rotation_angle = M_PI / 6;
     bool seed_skips = false;
+    std::vector<std::pair<Pos, Pos>> segments;
+    std::vector<Pos> seeds;
 
 private:
     unsigned int endOfBranch(std::vector<std::string>::iterator it);
 
     unsigned int development_stage = 0;
-    std::vector<std::pair<Pos, Pos>> segments;
-    std::vector<Pos> seeds;
 };
 
 #endif //L_SYSTEMS_TREE_H

@@ -75,7 +75,7 @@ void Tree::grow() {
     DevState cur_state = {};
     std::vector<DevState> state_stack = {};
     // Position -> whether a seed that counted towards fitness was inserted at that position
-    std::unordered_map<Pos, bool, pos_hash> vertice_is_seed {{}};
+    std::unordered_map<CollisionPos, bool, pos_hash> vertice_is_seed {{}};
     segments = {};
     auto it = body.begin();
     while (it != body.end()) {
@@ -104,7 +104,10 @@ void Tree::grow() {
             cur_state.pos.z += int(collision_precision * sin(cur_state.ay));
 
             vertice_is_seed.insert({cur_state.pos, gene == "*"});
-            segments.emplace_back(search->first, cur_state.pos);
+            segments.emplace_back(
+                Pos(search->first, collision_precision),
+                Pos(cur_state.pos, collision_precision)
+            );
         }
         if (seed_skips && (gene == "*"))
             it = !inside_branch ? body.end() : it + endOfBranch(it);
@@ -116,7 +119,7 @@ void Tree::grow() {
     seeds.reserve(vertice_is_seed.size());
     for (const auto &pos : vertice_is_seed) {
         if (pos.second)
-            seeds.push_back(pos.first);
+            seeds.emplace_back(pos.first, collision_precision);
     }
 }
 
@@ -130,15 +133,15 @@ std::string Tree::segmentsAsOBJ() const {
     for (const auto &[v1, v2] : segments) {
         vertices.push_back(
             "v " +
-            std::to_string(v1.x / (double) collision_precision) + " " +
-            std::to_string(v1.y / (double) collision_precision) + " " +
-            std::to_string(v1.z / (double) collision_precision)
+            std::to_string(v1.x) + " " +
+            std::to_string(v1.y) + " " +
+            std::to_string(v1.z)
         );
         vertices.push_back(
             "v " +
-            std::to_string(v2.x / (double) collision_precision) + " " +
-            std::to_string(v2.y / (double) collision_precision) + " " +
-            std::to_string(v2.z / (double) collision_precision)
+            std::to_string(v2.x) + " " +
+            std::to_string(v2.y) + " " +
+            std::to_string(v2.z)
         );
         lines.push_back(
             "l " +
@@ -154,9 +157,9 @@ std::string Tree::seedsAsOBJ() const {
     for (const auto &seed : seeds) {
         vertices.push_back(
             "v " +
-            std::to_string(seed.x / (double) collision_precision) + " " +
-            std::to_string(seed.y / (double) collision_precision) + " " +
-            std::to_string(seed.z / (double) collision_precision)
+            std::to_string(seed.x) + " " +
+            std::to_string(seed.y) + " " +
+            std::to_string(seed.z)
         );
     }
     return vecToStr(vertices, "\n") + "\n";

@@ -13,11 +13,13 @@ Genome::Genome(
     double mut_sub,
     double mut_dup,
     double mut_del,
-    std::mt19937 &rng
-) : max_size(max_size),
+    unsigned int gene_activation_length,
+    std::mt19937 &rng) :
+    max_size(max_size),
     mut_sub(mut_sub),
     mut_dup(mut_dup),
-    mut_del(mut_del) {
+    mut_del(mut_del),
+    gene_activation_length(gene_activation_length) {
     if (size > max_size)
         throw std::runtime_error("Max 'size' is " + std::to_string(max_size));
 

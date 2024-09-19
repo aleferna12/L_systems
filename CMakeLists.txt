@@ -35,4 +35,5 @@ add_executable(
         src/genome.h
         src/model.cpp
         src/model.h
+        src/pos.h
 )

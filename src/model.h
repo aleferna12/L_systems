@@ -17,6 +17,8 @@ public:
 
     void run() { run(parameters.generations); }
 
+    void saveData();
+
     Parameters parameters;
     std::mt19937 rng;
     Forest forest;

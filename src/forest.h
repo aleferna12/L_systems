@@ -18,6 +18,7 @@ public:
            double mut_sub,
            double mut_dup,
            double mut_del,
+           unsigned int gene_activation_length,
            std::mt19937 &rng);
 
     //! Creates an empty forest.
@@ -40,7 +41,15 @@ public:
     std::optional<Tree> fittest_currently;
     double total_fitness = 0;
 
-    void save_fittest(const std::string &outdir);
+    void saveFittest(const std::string &outdir);
+
+    unsigned int squareGridLength() const {
+        return ceil(sqrt((double) population.size()));
+    }
+
+    void saveForest(const std::string &outdir) const;
+
+    std::string seedsAsOBJ() const;
 };
 
 

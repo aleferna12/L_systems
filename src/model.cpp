@@ -18,6 +18,7 @@ Model::Model(const Parameters &parameters) :
         parameters.mut_sub_rate,
         parameters.mut_dup_rate,
         parameters.mut_del_rate,
+        parameters.gene_activation_length,
         rng
     ) {
     if (!std::filesystem::create_directory(parameters.outdir)) {
@@ -47,4 +48,12 @@ void Model::run(unsigned int generations) {
 
         forest.evolve(rng);
     }
+}
+
+void Model::saveData() {
+    forest.saveFittest(parameters.outdir);
+
+    auto forestdir = parameters.outdir + "/forest";
+    std::filesystem::create_directory(forestdir);
+    forest.saveForest(forestdir);
 }
