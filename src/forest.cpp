@@ -122,7 +122,7 @@ void Forest::saveForest(const std::string &outdir) const {
         tree.grow();
 
         unsigned int width = ceil(sqrt((double) population.size()));
-        unsigned int x = i / width * 10;
+        unsigned int x = i / width * 10; // TODO: make parameter
         unsigned int z = i % width * 10;
         for (auto &seg : tree.segments) {
             seg.first.x += x;
