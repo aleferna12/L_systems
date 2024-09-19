@@ -83,7 +83,6 @@ void Tree::grow() {
         bool inside_branch = !state_stack.empty();
         if (gene == "[") {
             state_stack.push_back(cur_state);
-            cur_state = {};
         } else if (gene == "]") {
             if (inside_branch) {
                 cur_state = state_stack.back();
