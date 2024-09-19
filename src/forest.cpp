@@ -37,12 +37,11 @@ Forest::Forest(
 }
 
 void Forest::evolve(std::mt19937 &rng) {
-    for (auto &tree : population)
-        tree.develop();
-    for (auto &tree : population)
+    for (auto &tree : population) {
+        tree.develop(tree.maturity);
         tree.grow();
-    for (auto &tree : population)
         tree.genome.mutate(rng);
+    }
 
     total_fitness = 0.;
     for (const auto &tree : population)
@@ -94,9 +93,6 @@ void Forest::saveFittest(const std::string &outdir) {
                                  "did you evolve the population at least once?");
 
     auto fittest = fittest_ever.value();
-    fittest.develop(fittest.maturity);
-    fittest.grow();
-
     std::ofstream file;
 
     file.open(outdir + "/fittest_body.txt");
@@ -122,7 +118,7 @@ void Forest::saveFittest(const std::string &outdir) {
 void Forest::saveForest(const std::string &outdir) const {
     for (size_t i = 0; i < population.size(); i++) {
         auto tree = population[i];
-        tree.develop();
+        tree.develop(tree.maturity);
         tree.grow();
 
         unsigned int width = ceil(sqrt((double) population.size()));

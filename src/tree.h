@@ -27,9 +27,6 @@ public:
     //! Tree body plan development.
     void develop(unsigned int stage);
 
-    //! Tree body plan development to maturity.
-    void develop() { develop(maturity); }
-
     double fitness() const;
 
     std::vector<std::string> translatedBody() const;
@@ -49,10 +46,10 @@ public:
     std::vector<std::pair<Pos, Pos>> segments;
     std::vector<Pos> seeds;
 
+    unsigned int development_stage = 0;
 private:
     unsigned int endOfBranch(std::vector<std::string>::iterator it);
 
-    unsigned int development_stage = 0;
 };
 
 #endif //L_SYSTEMS_TREE_H
