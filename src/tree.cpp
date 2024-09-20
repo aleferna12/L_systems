@@ -102,6 +102,13 @@ void Tree::grow() {
             cur_state.pos.y += int(collision_precision * cos(cur_state.ax) * cos_ay);
             cur_state.pos.z += int(collision_precision * sin(cur_state.ay));
 
+            // Prevents branches growing downwards
+            // TODO: replace with excessive torque breaking branches
+            if (cur_state.pos.y < search->first.y) {
+                it = !inside_branch ? body.end() : it + endOfBranch(it);
+                continue;
+            }
+
             vertice_is_seed.insert({cur_state.pos, gene == "*"});
             segments.emplace_back(
                 Pos(search->first, collision_precision),
