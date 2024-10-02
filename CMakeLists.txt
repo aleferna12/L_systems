@@ -31,10 +31,10 @@ add_executable(
     src/utility.h
     src/forest.cpp
     src/forest.h
-        src/parameters.h
-        src/genome.cpp
-        src/genome.h
-        src/model.cpp
-        src/model.h
-        src/pos.h
+    src/parameters.h
+    src/genome.cpp
+    src/genome.h
+    src/model.cpp
+    src/model.h
+    src/pos.h
 )
