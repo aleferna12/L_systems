@@ -13,9 +13,9 @@ struct Parameters {
     const std::string outdir = "out";
     // TODO: set to false once I implement a way to read parameters from the terminal
     const bool replace_dir = true;
-    const int generations = 100;
+    const int generations = 300;
     // Use '0' for a random seed
-    const unsigned int seed = 234347556;
+    const unsigned int seed = 134347556;
     // Forest
     // ======
     const int n_pop = 500;
