@@ -50,10 +50,10 @@ void Model::run(unsigned int generations) {
     }
 }
 
-void Model::saveData() {
+void Model::saveData() const {
     forest.saveFittest(parameters.outdir);
 
-    auto forestdir = parameters.outdir + "/forest";
+    const auto forestdir = parameters.outdir + "/forest";
     std::filesystem::create_directory(forestdir);
     forest.saveForest(forestdir);
 }

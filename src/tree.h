@@ -21,6 +21,8 @@ public:
     //! Gets a clone of this tree before any growth took place.
     Tree germinate() const;
 
+    std::string asTREE() const;
+
     //! Tree growth in space (updates segments and seeds).
     void grow();
 

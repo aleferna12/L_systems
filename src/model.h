@@ -17,7 +17,7 @@ public:
 
     void run() { run(parameters.generations); }
 
-    void saveData();
+    void saveData() const;
 
     Parameters parameters;
     std::mt19937 rng;

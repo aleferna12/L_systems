@@ -41,7 +41,7 @@ public:
     std::optional<Tree> fittest_currently;
     double total_fitness = 0;
 
-    void saveFittest(const std::string &outdir);
+    void saveFittest(const std::string &outdir) const;
 
     unsigned int squareGridLength() const {
         return ceil(sqrt((double) population.size()));

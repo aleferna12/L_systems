@@ -5,6 +5,7 @@
 #include <utility>
 #include <stdexcept>
 #include <unordered_set>
+#include <sstream>
 #include "tree.h"
 
 Tree::Tree(
@@ -131,6 +132,18 @@ void Tree::grow() {
 
 Tree Tree::germinate() const {
     return {seedling, genome, maturity};
+}
+
+std::string Tree::asTREE() const {
+    std::stringstream res;
+    for (const auto &[v1, v2] : segments) {
+        res << 's' << v1.x << ' ' << v1.y << ',';
+        res << v2.x << ' ' << v2.y << '\n';
+    }
+    for (const auto &seed : seeds) {
+        res << '*' << seed.x << ' ' << seed.y << '\n';
+    }
+    return res.str();
 }
 
 std::string Tree::segmentsAsOBJ() const {

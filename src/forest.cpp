@@ -87,7 +87,7 @@ void Forest::printStats() {
         std::cout << "Best fitness: " << fittest_ever.value().fitness() << "\n";
 }
 
-void Forest::saveFittest(const std::string &outdir) {
+void Forest::saveFittest(const std::string &outdir) const {
     if (!fittest_ever.has_value())
         throw std::runtime_error("Forest does not have a fittest plant, "
                                  "did you evolve the population at least once?");
@@ -103,12 +103,8 @@ void Forest::saveFittest(const std::string &outdir) {
     file << fittest.genome.stringRepresentation();
     file.close();
 
-    file.open(outdir + "/fittest_segments.obj");
-    file << fittest.segmentsAsOBJ();
-    file.close();
-
-    file.open(outdir + "/fittest_seeds.obj");
-    file << fittest.seedsAsOBJ();
+    file.open(outdir + "/fittest_tree.tree");
+    file << fittest.asTREE();
     file.close();
 
     std::cout << "Saved information about fittest tree (fitness = " <<
@@ -124,11 +120,11 @@ void Forest::saveForest(const std::string &outdir) const {
         unsigned int width = ceil(sqrt((double) population.size()));
         unsigned int x = i / width * 10; // TODO: make parameter
         unsigned int z = i % width * 10;
-        for (auto &seg : tree.segments) {
-            seg.first.x += x;
-            seg.second.x += x;
-            seg.first.z += z;
-            seg.second.z += z;
+        for (auto &[v1, v2] : tree.segments) {
+            v1.x += x;
+            v2.x += x;
+            v1.z += z;
+            v2.z += z;
         }
 
         for (auto &seed : tree.seeds) {
@@ -139,12 +135,8 @@ void Forest::saveForest(const std::string &outdir) const {
         std::ofstream file;
         std::string basename = outdir + "/" + std::to_string(i) + "_";
 
-        file.open(basename + "segments.obj");
-        file << tree.segmentsAsOBJ();
-        file.close();
-
-        file.open(basename + "seeds.obj");
-        file << tree.seedsAsOBJ();
+        file.open(basename + "tree.tree");
+        file << tree.asTREE();
         file.close();
     }
     std::cout << "Saved forest to: '" << outdir << "'\n";
