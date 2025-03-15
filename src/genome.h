@@ -59,7 +59,7 @@ public:
 
     double core_gene_substitution_chance = 0.5;
     //TODO: should this be an unordered_set? benchmark
-    static constexpr std::array core_genes = {"x+", "x-", "y+", "y-", "*", "[", "]"};
+    static constexpr std::array core_genes = {"+", "-", "*", "[", "]"};
 
 private:
     void mutDup(std::mt19937 &rng);

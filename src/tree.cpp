@@ -88,16 +88,16 @@ void Tree::grow() {
                 cur_state = state_stack.back();
                 state_stack.pop_back();
             }
-        } else if (gene[0] == 'x')
-            cur_state.ax += gene[1] == '+' ? rotation_angle : -rotation_angle;
-        else if (gene[0] == 'y')
-            cur_state.ay += gene[1] == '+' ? rotation_angle : -rotation_angle;
+        } else if (gene == "+")
+            cur_state.ax += rotation_angle;
+        else if (gene == "-")
+            cur_state.ax -= rotation_angle;
         else {
             auto search = vertice_is_seed.find(cur_state.pos);
             if (search != vertice_is_seed.end())
                 search->second = false;
 
-            double cos_ay = cos(cur_state.ay);
+            const double cos_ay = cos(cur_state.ay);
             cur_state.pos.x += int(collision_precision * sin(cur_state.ax) * cos_ay);
             cur_state.pos.y += int(collision_precision * cos(cur_state.ax) * cos_ay);
             cur_state.pos.z += int(collision_precision * sin(cur_state.ay));
