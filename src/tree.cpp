@@ -3,15 +3,16 @@
 //
 
 #include <utility>
-#include <stdexcept>
 #include <unordered_set>
 #include <sstream>
 #include "tree.h"
 
+#include <iostream>
+
 Tree::Tree(
     const std::vector<std::string> &seedling,
     Genome genome,
-    unsigned int maturity
+    const unsigned int maturity
 ) : genome(std::move(genome)),
     seedling(seedling),
     body(seedling),
@@ -19,7 +20,7 @@ Tree::Tree(
 
 Tree::Tree(
     const Genome &genome,
-    unsigned int maturity,
+    const unsigned int maturity,
     std::mt19937 &rng
 ) : Tree(
     {genome.getRandomGene(rng)},
@@ -27,13 +28,13 @@ Tree::Tree(
     maturity
 ) {}
 
-void Tree::develop(unsigned int stage) {
+void Tree::develop(const unsigned int stage) {
     std::vector<std::string> new_body;
     for (unsigned int i = 0; i < stage; i++) {
         new_body.clear();
 
         for (auto &gene : body) {
-            auto target_genes = genome.geneActivates(gene);
+            const auto target_genes = genome.geneActivates(gene);
             if (target_genes == nullptr) {
                 new_body.push_back(gene);
                 continue;
@@ -59,7 +60,7 @@ std::vector<std::string> Tree::translatedBody() const {
 unsigned int Tree::endOfBranch(std::vector<std::string>::iterator it) {
     unsigned int nest = 0;
     unsigned int offset = 0;
-    for (;it != body.end(); it++) {
+    for (;it != body.end(); ++it) {
         if (*it == "]") {
             if (nest == 0)
                 return offset;
@@ -73,15 +74,14 @@ unsigned int Tree::endOfBranch(std::vector<std::string>::iterator it) {
 }
 
 void Tree::grow() {
-    DevState cur_state = {};
+    BinaryTree binary_tree(ROOT, {});
+    DevState cur_state = {&binary_tree, 0, 0};
     std::vector<DevState> state_stack = {};
-    // Position -> whether a seed that counted towards fitness was inserted at that position
-    std::unordered_map<CollisionPos, bool, pos_hash> vertice_is_seed {{}};
     segments = {};
     auto it = body.begin();
     while (it != body.end()) {
         std::string &gene = *it;
-        bool inside_branch = !state_stack.empty();
+        const bool inside_branch = !state_stack.empty();
         if (gene == "[") {
             state_stack.push_back(cur_state);
         } else if (gene == "]") {
@@ -93,40 +93,63 @@ void Tree::grow() {
             cur_state.ax += rotation_angle;
         else if (gene == "-")
             cur_state.ax -= rotation_angle;
+        else if (gene == "*") {
+            if (cur_state.node->nChildren() == 0) {
+                cur_state.node->phen = SEED;
+                if (seed_skips) {
+                    it = !inside_branch ? body.end() : it + endOfBranch(it);
+                    continue;
+                }
+            }
+        }
         else {
-            auto search = vertice_is_seed.find(cur_state.pos);
-            if (search != vertice_is_seed.end())
-                search->second = false;
+            if (cur_state.node->phen == SEED) {
+                cur_state.node->phen = GROWTH;
+            }
 
+            const auto prev_pos = cur_state.node->pos;
             const double cos_ay = cos(cur_state.ay);
-            cur_state.pos.x += int(collision_precision * sin(cur_state.ax) * cos_ay);
-            cur_state.pos.y += int(collision_precision * cos(cur_state.ax) * cos_ay);
-            cur_state.pos.z += int(collision_precision * sin(cur_state.ay));
+            CollisionPos next_pos = {
+                prev_pos.x + int(collision_precision * sin(cur_state.ax) * cos_ay),
+                prev_pos.y + int(collision_precision * cos(cur_state.ax) * cos_ay)
+            };
+
+            bool hit = false;
+            for (unsigned int i = 0; i < cur_state.node->nChildren(); i++) {
+                const auto child = cur_state.node->getChild(i);
+                if (child->pos == next_pos) {
+                    hit = true;
+                    break;
+                }
+            }
+            if (hit) {
+                ++it;
+                continue;
+            }
 
             // Prevents branches growing downwards
             // TODO: replace with excessive torque breaking branches
-            if (cur_state.pos.y < search->first.y) {
+            if (next_pos.y < prev_pos.y) {
                 it = !inside_branch ? body.end() : it + endOfBranch(it);
                 continue;
             }
 
-            vertice_is_seed.insert({cur_state.pos, gene == "*"});
+            const auto next_node = cur_state.node->insertChild(GROWTH, next_pos);
+            cur_state.node = next_node;
+
             segments.emplace_back(
-                Pos(search->first, collision_precision),
-                Pos(cur_state.pos, collision_precision)
+                Pos(prev_pos, collision_precision),
+                Pos(next_pos, collision_precision)
             );
         }
-        if (seed_skips && (gene == "*"))
-            it = !inside_branch ? body.end() : it + endOfBranch(it);
-        else
-            it++;
+        ++it;
     }
 
     seeds = {};
-    seeds.reserve(vertice_is_seed.size());
-    for (const auto &pos : vertice_is_seed) {
-        if (pos.second)
-            seeds.emplace_back(pos.first, collision_precision);
+    for (const auto node : binary_tree.traverse()) {
+        if (node->phen == SEED) {
+            seeds.emplace_back(node->pos, collision_precision);
+        }
     }
 }
 
@@ -153,14 +176,12 @@ std::string Tree::segmentsAsOBJ() const {
         vertices.push_back(
             "v " +
             std::to_string(v1.x) + " " +
-            std::to_string(v1.y) + " " +
-            std::to_string(v1.z)
+            std::to_string(v1.y)
         );
         vertices.push_back(
             "v " +
             std::to_string(v2.x) + " " +
-            std::to_string(v2.y) + " " +
-            std::to_string(v2.z)
+            std::to_string(v2.y)
         );
         lines.push_back(
             "l " +
@@ -177,8 +198,7 @@ std::string Tree::seedsAsOBJ() const {
         vertices.push_back(
             "v " +
             std::to_string(seed.x) + " " +
-            std::to_string(seed.y) + " " +
-            std::to_string(seed.z)
+            std::to_string(seed.y)
         );
     }
     return vecToStr(vertices, "\n") + "\n";

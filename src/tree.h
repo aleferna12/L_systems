@@ -7,10 +7,18 @@
 
 #include <string>
 #include <vector>
+
+#include "binarytree.h"
 #include "utility.h"
 #include "pos.h"
 #include "parameters.h"
 #include "genome.h"
+
+struct DevState {
+    BinaryTree *node = nullptr;
+    double ax = 0;
+    double ay = 0;
+};
 
 class Tree {
 public:
@@ -42,6 +50,7 @@ public:
     std::vector<std::string> body;  // Needs to be initialized by all constructors
     unsigned int maturity;
 
+    // TODO: add parameters
     unsigned int collision_precision = 1000;
     double rotation_angle = M_PI / 6;
     bool seed_skips = false;

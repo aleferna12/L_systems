@@ -119,17 +119,13 @@ void Forest::saveForest(const std::string &outdir) const {
 
         unsigned int width = ceil(sqrt((double) population.size()));
         unsigned int x = i / width * 10; // TODO: make parameter
-        unsigned int z = i % width * 10;
         for (auto &[v1, v2] : tree.segments) {
             v1.x += x;
             v2.x += x;
-            v1.z += z;
-            v2.z += z;
         }
 
         for (auto &seed : tree.seeds) {
             seed.x += x;
-            seed.z += z;
         }
 
         std::ofstream file;

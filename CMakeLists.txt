@@ -37,4 +37,6 @@ add_executable(
     src/model.cpp
     src/model.h
     src/pos.h
+        src/binarytree.cpp
+        src/binarytree.h
 )

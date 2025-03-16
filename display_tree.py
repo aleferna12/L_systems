@@ -11,7 +11,7 @@ def str_to_pos(string):
     return CW / 2 + float(x) * SCALE, CH - float(y) * SCALE  # Tkinter is dumb
 
 
-fp = "./cmake-build-debug/out/fittest_tree.tree"
+fp = "./cmake-build-release/out/fittest_tree.tree"
 with open(fp) as file:
     contents = file.readlines()
 
