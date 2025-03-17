@@ -116,8 +116,8 @@ void Tree::grow() {
 
             bool hit = false;
             for (unsigned int i = 0; i < cur_state.node->nChildren(); i++) {
-                const auto child = cur_state.node->getChild(i);
-                if (child->pos == next_pos) {
+                const auto &child = cur_state.node->getChild(i);
+                if (child.pos == next_pos) {
                     hit = true;
                     break;
                 }
@@ -134,8 +134,8 @@ void Tree::grow() {
                 continue;
             }
 
-            const auto next_node = cur_state.node->insertChild(GROWTH, next_pos);
-            cur_state.node = next_node;
+            auto &next_node = cur_state.node->insertChild(GROWTH, next_pos);
+            cur_state.node = &next_node;
 
             segments.emplace_back(
                 Pos(prev_pos, collision_precision),
@@ -146,6 +146,7 @@ void Tree::grow() {
     }
 
     seeds = {};
+    // ReSharper disable once CppRangeBasedForIncompatibleReference
     for (const auto node : binary_tree.traverse()) {
         if (node->phen == SEED) {
             seeds.emplace_back(node->pos, collision_precision);
