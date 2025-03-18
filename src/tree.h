@@ -8,14 +8,25 @@
 #include <string>
 #include <vector>
 
-#include "binarytree.h"
+#include "generaltree.h"
 #include "utility.h"
 #include "pos.h"
 #include "parameters.h"
 #include "genome.h"
 
+enum Phenotype {
+    SEED,
+    GROWTH,
+    ROOT
+};
+
+struct PhenotypeData {
+    Phenotype phen = ROOT;
+    CollisionPos pos;
+};
+
 struct DevState {
-    BinaryTree *node = nullptr;
+    GeneralTree<PhenotypeData> *node = nullptr;
     double ax = 0;
     double ay = 0;
 };

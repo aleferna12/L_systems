@@ -21,7 +21,6 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 message("Compilation flags: " ${CMAKE_CXX_FLAGS})
-
 add_executable(
     L_systems
     src/main.cpp
@@ -37,6 +36,5 @@ add_executable(
     src/model.cpp
     src/model.h
     src/pos.h
-        src/binarytree.cpp
-        src/binarytree.h
+    src/generaltree.h
 )

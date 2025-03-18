@@ -74,7 +74,7 @@ unsigned int Tree::endOfBranch(std::vector<std::string>::iterator it) {
 }
 
 void Tree::grow() {
-    BinaryTree binary_tree(ROOT, {});
+    GeneralTree<PhenotypeData> binary_tree({});
     DevState cur_state = {&binary_tree, 0, 0};
     std::vector<DevState> state_stack = {};
     segments = {};
@@ -95,7 +95,7 @@ void Tree::grow() {
             cur_state.ax -= rotation_angle;
         else if (gene == "*") {
             if (cur_state.node->nChildren() == 0) {
-                cur_state.node->phen = SEED;
+                cur_state.node->data.phen = SEED;
                 if (seed_skips) {
                     it = !inside_branch ? body.end() : it + endOfBranch(it);
                     continue;
@@ -103,11 +103,11 @@ void Tree::grow() {
             }
         }
         else {
-            if (cur_state.node->phen == SEED) {
-                cur_state.node->phen = GROWTH;
+            if (cur_state.node->data.phen == SEED) {
+                cur_state.node->data.phen = GROWTH;
             }
 
-            const auto prev_pos = cur_state.node->pos;
+            const auto prev_pos = cur_state.node->data.pos;
             const double cos_ay = cos(cur_state.ay);
             CollisionPos next_pos = {
                 prev_pos.x + int(collision_precision * sin(cur_state.ax) * cos_ay),
@@ -117,7 +117,7 @@ void Tree::grow() {
             bool hit = false;
             for (unsigned int i = 0; i < cur_state.node->nChildren(); i++) {
                 const auto &child = cur_state.node->getChild(i);
-                if (child.pos == next_pos) {
+                if (child.data.pos == next_pos) {
                     hit = true;
                     break;
                 }
@@ -134,7 +134,7 @@ void Tree::grow() {
                 continue;
             }
 
-            auto &next_node = cur_state.node->insertChild(GROWTH, next_pos);
+            auto &next_node = cur_state.node->insertChild({GROWTH, next_pos});
             cur_state.node = &next_node;
 
             segments.emplace_back(
@@ -148,8 +148,8 @@ void Tree::grow() {
     seeds = {};
     // ReSharper disable once CppRangeBasedForIncompatibleReference
     for (const auto node : binary_tree.traverse()) {
-        if (node->phen == SEED) {
-            seeds.emplace_back(node->pos, collision_precision);
+        if (node->data.phen == SEED) {
+            seeds.emplace_back(node->data.pos, collision_precision);
         }
     }
 }
