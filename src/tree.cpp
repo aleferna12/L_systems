@@ -75,7 +75,7 @@ unsigned int Tree::endOfBranch(std::vector<std::string>::iterator it) {
 
 void Tree::grow() {
     GeneralTree<PhenotypeData> binary_tree({});
-    DevState cur_state = {&binary_tree, 0, 0};
+    DevState cur_state = {&binary_tree, 0};
     std::vector<DevState> state_stack = {};
     segments = {};
     auto it = body.begin();
@@ -90,9 +90,9 @@ void Tree::grow() {
                 state_stack.pop_back();
             }
         } else if (gene == "+")
-            cur_state.ax += rotation_angle;
+            cur_state.angle += rotation_angle;
         else if (gene == "-")
-            cur_state.ax -= rotation_angle;
+            cur_state.angle -= rotation_angle;
         else if (gene == "*") {
             if (cur_state.node->nChildren() == 0) {
                 cur_state.node->data.phen = SEED;
@@ -108,10 +108,9 @@ void Tree::grow() {
             }
 
             const auto prev_pos = cur_state.node->data.pos;
-            const double cos_ay = cos(cur_state.ay);
             CollisionPos next_pos = {
-                prev_pos.x + int(collision_precision * sin(cur_state.ax) * cos_ay),
-                prev_pos.y + int(collision_precision * cos(cur_state.ax) * cos_ay)
+                prev_pos.x + int(collision_precision * sin(cur_state.angle)),
+                prev_pos.y + int(collision_precision * cos(cur_state.angle))
             };
 
             bool hit = false;

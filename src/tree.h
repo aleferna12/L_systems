@@ -27,8 +27,7 @@ struct PhenotypeData {
 
 struct DevState {
     GeneralTree<PhenotypeData> *node = nullptr;
-    double ax = 0;
-    double ay = 0;
+    double angle = 0;
 };
 
 class Tree {

@@ -38,7 +38,7 @@ Model::Model(const Parameters &parameters) :
     }
 }
 
-void Model::run(unsigned int generations) {
+void Model::run(const unsigned int generations) {
     for (unsigned int i = 0; i < generations; i++) {
         if (i % 100 == 0) {
             std::cout << "Generation: " << i << "\n";
