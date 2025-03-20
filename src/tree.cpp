@@ -64,8 +64,7 @@ unsigned int Tree::endOfBranch(std::vector<std::string>::iterator it) {
         if (*it == "]") {
             if (nest == 0)
                 return offset;
-            else
-                nest--;
+            nest--;
         } else if (*it == "[")
             nest++;
         offset++;
@@ -126,13 +125,6 @@ void Tree::grow() {
                 continue;
             }
 
-            // Prevents branches growing downwards
-            // TODO: replace with excessive torque breaking branches
-            if (next_pos.y < prev_pos.y) {
-                it = !inside_branch ? body.end() : it + endOfBranch(it);
-                continue;
-            }
-
             auto &next_node = cur_state.node->insertChild({GROWTH, next_pos});
             cur_state.node = &next_node;
 
@@ -144,13 +136,58 @@ void Tree::grow() {
         ++it;
     }
 
+    setMass(binary_tree);
+    // TODO make max_torque a parameter
+    breakBranches(binary_tree, {}, collision_precision, 2000);
+
     seeds = {};
-    // ReSharper disable once CppRangeBasedForIncompatibleReference
     for (const auto node : binary_tree.traverse()) {
         if (node->data.phen == SEED) {
             seeds.emplace_back(node->data.pos, collision_precision);
         }
     }
+}
+
+// TODO: instead of breaking, just invalidate seeds on branches, this way we can retrieve the morphologies
+void Tree::breakBranches(
+    GeneralTree<PhenotypeData> &tree,
+    const CollisionPos parent_pos,
+    const double branch_length,
+    const double max_torque
+) {
+    if (tree.data.phen == ROOT) {
+        tree.data.torque = 0;
+    } else {
+        const double x = parent_pos.x - tree.data.pos.x;
+        const double y = parent_pos.y - tree.data.pos.y;
+        const double a = atan2(y, x);
+        const double cos_a = cos(a);
+        const double d = branch_length * cos_a / 2;
+        tree.data.torque = tree.data.mass * d * cos_a;
+    }
+
+    for (unsigned int i = tree.nChildren(); i--;) {
+        auto &child = tree.getChild(i);
+        breakBranches(child, tree.data.pos, branch_length, max_torque);
+        if (child.data.torque > max_torque || child.data.pos.y < tree.data.pos.y) {
+            tree.removeChild(i);
+        }
+    }
+}
+
+void Tree::setMass(GeneralTree<PhenotypeData> &tree) {
+    if (tree.nChildren() == 0) {
+        tree.data.mass = 1;
+        return;
+    }
+
+    double mass = 1;
+    for (unsigned int i = 0; i < tree.nChildren(); i++) {
+        auto &child = tree.getChild(i);
+        setMass(child);
+        mass += child.data.mass;
+    }
+    tree.data.mass = mass;
 }
 
 Tree Tree::germinate() const {
@@ -204,7 +241,19 @@ std::string Tree::seedsAsOBJ() const {
     return vecToStr(vertices, "\n") + "\n";
 }
 
-// TODO: introduce other factors such as verticality, distance from base etc
+// TODO: seed worth more if farther away from other seeds
 double Tree::fitness() const {
-    return (double) seeds.size();
+    std::unordered_set<int> fallen;
+    double fit = 0;
+    for (auto &seed : seeds) {
+        double this_seed_fit = 1 + fabs(seed.x) * 0.2;
+        int int_pos = int(round(collision_precision * seed.x));
+        if (!fallen.contains(int_pos)) {
+            fallen.insert(int_pos);
+        } else {
+            this_seed_fit /= 2;
+        }
+        fit += this_seed_fit;
+    }
+    return fit;
 }

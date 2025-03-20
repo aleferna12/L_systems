@@ -15,15 +15,15 @@ struct Parameters {
     const bool replace_dir = true;
     const int generations = 1000;
     // Use '0' for a random seed
-    const unsigned int seed = 14347556;
+    const unsigned int seed = 34447556;
     // Forest
     // ======
     const int n_pop = 500;
     // Tree
     // ====
-    const int maturity = 8;
+    const int maturity = 5;
     // Make sure to balance this with maturity otherwise you wont have enough memory
-    const unsigned int gene_activation_length = 2;
+    const unsigned int gene_activation_length = 3;
     const double core_gene_substitution_chance = 0.5;
     const unsigned int collision_precision = 1000;
     const double rotation_angle = M_PI / 6;

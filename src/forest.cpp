@@ -117,17 +117,6 @@ void Forest::saveForest(const std::string &outdir) const {
         tree.develop(tree.maturity);
         tree.grow();
 
-        unsigned int width = ceil(sqrt((double) population.size()));
-        unsigned int x = i / width * 10; // TODO: make parameter
-        for (auto &[v1, v2] : tree.segments) {
-            v1.x += x;
-            v2.x += x;
-        }
-
-        for (auto &seed : tree.seeds) {
-            seed.x += x;
-        }
-
         std::ofstream file;
         std::string basename = outdir + "/" + std::to_string(i) + "_";
 

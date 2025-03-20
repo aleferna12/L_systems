@@ -23,6 +23,9 @@ enum Phenotype {
 struct PhenotypeData {
     Phenotype phen = ROOT;
     CollisionPos pos;
+    double mass = 0;
+    double x_center_of_mass = 0;
+    double torque = 0;
 };
 
 struct DevState {
@@ -43,6 +46,10 @@ public:
 
     //! Tree growth in space (updates segments and seeds).
     void grow();
+
+    void breakBranches(GeneralTree<PhenotypeData> &tree, CollisionPos parent_pos, double branch_length, double max_torque);
+
+    static void setMass(GeneralTree<PhenotypeData> &tree);
 
     //! Tree body plan development.
     void develop(unsigned int stage);
