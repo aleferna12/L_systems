@@ -55,12 +55,6 @@ public:
 
     double fitness() const;
 
-    std::vector<std::string> translatedBody() const;
-
-    std::string segmentsAsOBJ() const;
-
-    std::string seedsAsOBJ() const;
-
     Genome genome;
     std::vector<std::string> seedling;  // Needs to be initialized by all constructors
     std::vector<std::string> body;  // Needs to be initialized by all constructors

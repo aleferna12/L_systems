@@ -43,13 +43,7 @@ public:
 
     void saveFittest(const std::string &outdir) const;
 
-    unsigned int squareGridLength() const {
-        return ceil(sqrt((double) population.size()));
-    }
-
     void saveForest(const std::string &outdir) const;
-
-    std::string seedsAsOBJ() const;
 };
 
 

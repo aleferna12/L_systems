@@ -15,7 +15,7 @@ struct Parameters {
     const bool replace_dir = true;
     const int generations = 10000;
     // Use '0' for a random seed
-    const unsigned int seed = 24447556;
+    const unsigned int seed = 0;
     // Forest
     // ======
     const int n_pop = 100;
@@ -26,7 +26,7 @@ struct Parameters {
     const unsigned int gene_activation_length = 3;
     const double core_gene_substitution_chance = 0.5;
     const unsigned int collision_precision = 1000;
-    const double rotation_angle = M_PI / 8;
+    const double rotation_angle = M_PI / 6;
     // TODO: decide if this should be true of false (i dont think it should be a parameter but maybe).
     // True leads to faster runtimes but lower fitness (maybe also tends to look cooler?).
     const bool seed_skips = false;

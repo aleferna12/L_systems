@@ -44,8 +44,9 @@ void Forest::evolve(std::mt19937 &rng) {
     }
 
     total_fitness = 0.;
-    for (const auto &tree : population)
+    for (const auto &tree : population) {
         total_fitness += tree.fitness();
+    }
 
     std::vector<Tree> new_population;
     for (size_t _ = 0; _ < population.size(); _++) {
@@ -78,8 +79,9 @@ Tree &Forest::randomFitTree(std::mt19937 &rng) {
 
 void Forest::printStats() {
     unsigned int tot_gen_size = 0;
-    for (const auto &tree : population)
+    for (const auto &tree : population) {
         tot_gen_size += tree.genome.size();
+    }
 
     std::cout << "Mean genome size: " << tot_gen_size / (double) population.size() << "\n";
     std::cout << "Mean fitness: " << total_fitness / (double) population.size() << "\n";

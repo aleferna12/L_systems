@@ -49,14 +49,6 @@ void Tree::develop(const unsigned int stage) {
     development_stage += stage;
 }
 
-std::vector<std::string> Tree::translatedBody() const {
-    std::vector<std::string> ret;
-    for (const auto &gene : body) {
-        ret.push_back(Genome::translateGene(gene));
-    }
-    return ret;
-}
-
 unsigned int Tree::endOfBranch(std::vector<std::string>::iterator it) {
     unsigned int nest = 0;
     unsigned int offset = 0;
@@ -191,7 +183,14 @@ void Tree::setMass(GeneralTree<PhenotypeData> &tree) {
 }
 
 Tree Tree::germinate() const {
-    return {seedling, genome, maturity};
+    Tree tree = Tree(seedling, genome, maturity);
+    tree.collision_precision = collision_precision;
+    tree.rotation_angle = rotation_angle;
+    tree.seed_skips = seed_skips;
+
+    tree.genome.gene_activation_length = genome.gene_activation_length;
+    tree.genome.core_gene_substitution_chance = genome.core_gene_substitution_chance;
+    return tree;
 }
 
 std::string Tree::asTREE() const {
@@ -206,41 +205,6 @@ std::string Tree::asTREE() const {
     return res.str();
 }
 
-std::string Tree::segmentsAsOBJ() const {
-    std::vector<std::string> vertices;
-    std::vector<std::string> lines;
-    for (const auto &[v1, v2] : segments) {
-        vertices.push_back(
-            "v " +
-            std::to_string(v1.x) + " " +
-            std::to_string(v1.y)
-        );
-        vertices.push_back(
-            "v " +
-            std::to_string(v2.x) + " " +
-            std::to_string(v2.y)
-        );
-        lines.push_back(
-            "l " +
-            std::to_string(vertices.size() - 1) + " " +
-            std::to_string(vertices.size())
-        );
-    }
-    return vecToStr(vertices, "\n") + "\n" + vecToStr(lines, "\n") + "\n";
-}
-
-std::string Tree::seedsAsOBJ() const {
-    std::vector<std::string> vertices;
-    for (const auto &seed : seeds) {
-        vertices.push_back(
-            "v " +
-            std::to_string(seed.x) + " " +
-            std::to_string(seed.y)
-        );
-    }
-    return vecToStr(vertices, "\n") + "\n";
-}
-
 double Tree::fitness() const {
     double fit = 0;
     for (unsigned int i = 0; i < seeds.size(); i++) {
@@ -250,7 +214,6 @@ double Tree::fitness() const {
             if (i == j)
                 continue;
             auto &seed2 = seeds.at(j);
-            // std::cout << seed2.x << "\n";
             fit += fabs(seed1.x - seed2.x) / (double) seeds.size();
         }
     }
