@@ -24,7 +24,6 @@ struct PhenotypeData {
     Phenotype phen = ROOT;
     CollisionPos pos;
     double mass = 0;
-    double x_center_of_mass = 0;
     double torque = 0;
 };
 

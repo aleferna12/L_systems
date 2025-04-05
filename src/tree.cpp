@@ -241,19 +241,18 @@ std::string Tree::seedsAsOBJ() const {
     return vecToStr(vertices, "\n") + "\n";
 }
 
-// TODO: seed worth more if farther away from other seeds
 double Tree::fitness() const {
-    std::unordered_set<int> fallen;
     double fit = 0;
-    for (auto &seed : seeds) {
-        double this_seed_fit = 1 + fabs(seed.x) * 0.2;
-        int int_pos = int(round(collision_precision * seed.x));
-        if (!fallen.contains(int_pos)) {
-            fallen.insert(int_pos);
-        } else {
-            this_seed_fit /= 2;
+    for (unsigned int i = 0; i < seeds.size(); i++) {
+        auto &seed1 = seeds.at(i);
+        fit += 10 + fabs(seed1.x) / 10;
+        for (unsigned int j = 0; j < seeds.size(); j++) {
+            if (i == j)
+                continue;
+            auto &seed2 = seeds.at(j);
+            // std::cout << seed2.x << "\n";
+            fit += fabs(seed1.x - seed2.x) / (double) seeds.size();
         }
-        fit += this_seed_fit;
     }
     return fit;
 }
