@@ -13,12 +13,12 @@ struct Parameters {
     const std::string outdir = "out";
     // TODO: set to false once I implement a way to read parameters from the terminal
     const bool replace_dir = true;
-    const int generations = 5000;
+    const int generations = 20000;
     // Use '0' for a random seed
     const unsigned int seed = 0;
     // Forest
     // ======
-    const int n_pop = 100;
+    const int n_pop = 10;
     // Tree
     // ====
     const int maturity = 4;
@@ -32,11 +32,11 @@ struct Parameters {
     const bool seed_skips = false;
     // Genome
     // ======
-    const unsigned int start_genome_size = 10;
-    const unsigned int max_genome_size = 30;
-    const double mut_sub_rate = 0.02;
-    const double mut_dup_rate = 0.002;
-    const double mut_del_rate = 0.002;
+    const unsigned int start_genome_size = 5;
+    const unsigned int max_genome_size = 10;
+    const double mut_sub_rate = 0.01;
+    const double mut_dup_rate = 0.001;
+    const double mut_del_rate = 0.001;
 };
 
 #endif //L_SYSTEMS_PARAMETERS_H

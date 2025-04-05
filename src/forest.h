@@ -30,7 +30,7 @@ public:
     //! Selects a random tree from the population.
     Tree &randomTree(std::mt19937 &rng);
 
-    //! Random weighted selection of a plant based on fitness.
+    //! Random weighted selection of a plant based on get_fitness.
     Tree &randomFitTree(std::mt19937 &rng);
 
     //! Print some stats about the population.
@@ -38,7 +38,6 @@ public:
 
     std::vector<Tree> population;
     std::optional<Tree> fittest_ever;
-    std::optional<Tree> fittest_currently;
     double total_fitness = 0;
 
     void saveFittest(const std::string &outdir) const;

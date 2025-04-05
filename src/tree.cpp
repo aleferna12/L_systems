@@ -138,6 +138,14 @@ void Tree::grow() {
             seeds.emplace_back(node->data.pos, collision_precision);
         }
     }
+    fitness = get_fitness();
+}
+
+void Tree::reset_development() {
+    body = seedling;
+    segments.clear();
+    seeds.clear();
+    development_stage = 0;
 }
 
 // TODO: instead of breaking, just invalidate seeds on branches, this way we can retrieve the morphologies
@@ -182,17 +190,6 @@ void Tree::setMass(GeneralTree<PhenotypeData> &tree) {
     tree.data.mass = mass;
 }
 
-Tree Tree::germinate() const {
-    Tree tree = Tree(seedling, genome, maturity);
-    tree.collision_precision = collision_precision;
-    tree.rotation_angle = rotation_angle;
-    tree.seed_skips = seed_skips;
-
-    tree.genome.gene_activation_length = genome.gene_activation_length;
-    tree.genome.core_gene_substitution_chance = genome.core_gene_substitution_chance;
-    return tree;
-}
-
 std::string Tree::asTREE() const {
     std::stringstream res;
     for (const auto &[v1, v2] : segments) {
@@ -205,7 +202,7 @@ std::string Tree::asTREE() const {
     return res.str();
 }
 
-double Tree::fitness() const {
+double Tree::get_fitness() const {
     double fit = 0;
     for (unsigned int i = 0; i < seeds.size(); i++) {
         auto &seed1 = seeds.at(i);

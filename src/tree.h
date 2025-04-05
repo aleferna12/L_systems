@@ -53,8 +53,6 @@ public:
     //! Tree body plan development.
     void develop(unsigned int stage);
 
-    double fitness() const;
-
     Genome genome;
     std::vector<std::string> seedling;  // Needs to be initialized by all constructors
     std::vector<std::string> body;  // Needs to be initialized by all constructors
@@ -68,8 +66,14 @@ public:
     std::vector<Pos> seeds;
 
     unsigned int development_stage = 0;
+    double fitness = 0;
+
+    void reset_development();
+
 private:
     unsigned int endOfBranch(std::vector<std::string>::iterator it);
+
+    double get_fitness() const;
 
 };
 

@@ -40,25 +40,27 @@ void Forest::evolve(std::mt19937 &rng) {
     for (auto &tree : population) {
         tree.develop(tree.maturity);
         tree.grow();
-        tree.genome.mutate(rng);
+        tree.reset_development();
     }
 
     total_fitness = 0.;
     for (const auto &tree : population) {
-        total_fitness += tree.fitness();
+        total_fitness += tree.fitness;
     }
 
     std::vector<Tree> new_population;
     for (size_t _ = 0; _ < population.size(); _++) {
-        auto &tree = randomFitTree(rng);
-        new_population.push_back(tree.germinate());
+        new_population.push_back(randomFitTree(rng));
+        auto &tree = new_population.back();
 
-        if (!fittest_currently.has_value() || tree.fitness() > fittest_currently.value().fitness())
-            fittest_currently = tree;
-        if (!fittest_ever.has_value() || tree.fitness() > fittest_ever.value().fitness())
+        if (!fittest_ever.has_value() || tree.fitness > fittest_ever.value().fitness)
             fittest_ever = tree;
+        tree.genome.mutate(rng);
     }
     population = new_population;
+    for (auto &tree : population) {
+        tree.fitness = 0;
+    }
 }
 
 Tree &Forest::randomTree(std::mt19937 &rng) {
@@ -68,10 +70,10 @@ Tree &Forest::randomTree(std::mt19937 &rng) {
 Tree &Forest::randomFitTree(std::mt19937 &rng) {
     double rnd = total_fitness * uniform_random(rng);
     for (auto &tree: population) {
-        if (rnd <= tree.fitness()) {
+        if (rnd <= tree.fitness) {
             return tree;
         }
-        rnd -= tree.fitness();
+        rnd -= tree.fitness;
     }
     // All plants have 0 fitness, just pick a random one
     return randomTree(rng);
@@ -84,9 +86,9 @@ void Forest::printStats() {
     }
 
     std::cout << "Mean genome size: " << tot_gen_size / (double) population.size() << "\n";
-    std::cout << "Mean fitness: " << total_fitness / (double) population.size() << "\n";
+    std::cout << "Mean get_fitness: " << total_fitness / (double) population.size() << "\n";
     if (fittest_ever.has_value())
-        std::cout << "Best fitness: " << fittest_ever.value().fitness() << "\n";
+        std::cout << "Best get_fitness: " << fittest_ever.value().fitness<< "\n";
 }
 
 void Forest::saveFittest(const std::string &outdir) const {
@@ -95,6 +97,8 @@ void Forest::saveFittest(const std::string &outdir) const {
                                  "did you evolve the population at least once?");
 
     auto fittest = fittest_ever.value();
+    fittest.develop(fittest.maturity);
+    fittest.grow();
     std::ofstream file;
 
     file.open(outdir + "/fittest_body.txt");
@@ -109,8 +113,8 @@ void Forest::saveFittest(const std::string &outdir) const {
     file << fittest.asTREE();
     file.close();
 
-    std::cout << "Saved information about fittest tree (fitness = " <<
-              fittest.fitness() << ") to: '" << outdir << "'\n";
+    std::cout << "Saved information about fittest tree "
+                 "(get_fitness = " << fittest.fitness << ") to: '" << outdir << "'\n";
 }
 
 void Forest::saveForest(const std::string &outdir) const {

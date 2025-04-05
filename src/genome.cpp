@@ -35,8 +35,7 @@ void Genome::mutDup(std::mt19937 &rng) {
     if (size() >= max_size)
         return;
 
-    ActivationMap to_add;
-    for (auto &gene : activation_map) {
+    for (auto &gene : std::unordered_map(activation_map)) {
         if (uniform_random(rng) > mut_dup)
             continue;
 
@@ -50,11 +49,7 @@ void Genome::mutDup(std::mt19937 &rng) {
         }
         if (new_gene.empty())
             new_gene = geneIdToGeneString(used_genes++);
-        to_add.insert({new_gene, gene.second});
-    }
-
-    for (auto &gene : to_add) {
-        activation_map.insert(gene);
+        activation_map.insert({new_gene, gene.second});
     }
 }
 
