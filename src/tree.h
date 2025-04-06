@@ -34,12 +34,9 @@ struct DevState {
 
 class Tree {
 public:
-    Tree(const std::vector<std::string> &seedling, Genome genome, unsigned short maturity);
+    Tree(const std::vector<char> &seedling, Genome genome, unsigned short maturity);
 
     Tree(const Genome &genome, unsigned short maturity, std::mt19937 &rng);
-
-    //! Gets a clone of this tree before any growth took place.
-    Tree germinate() const;
 
     std::string asTREE() const;
 
@@ -54,8 +51,8 @@ public:
     void develop(unsigned short stage);
 
     Genome genome;
-    std::vector<std::string> seedling;  // Needs to be initialized by all constructors
-    std::vector<std::string> body;  // Needs to be initialized by all constructors
+    std::vector<char> seedling;  // Needs to be initialized by all constructors
+    std::vector<char> body;  // Needs to be initialized by all constructors
     unsigned short maturity;
 
     // TODO: add parameters
@@ -71,7 +68,7 @@ public:
     void reset_development();
 
 private:
-    unsigned short endOfBranch(std::vector<std::string>::iterator it);
+    unsigned short endOfBranch(std::vector<char>::iterator it);
 
     float get_fitness() const;
 

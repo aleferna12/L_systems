@@ -8,7 +8,7 @@
 #include "utility.h"
 
 Genome::Genome(
-    unsigned short size,
+    char size,
     unsigned short max_size,
     float mut_sub,
     float mut_dup,
@@ -23,8 +23,9 @@ Genome::Genome(
     if (size > max_size)
         throw std::runtime_error("Max 'size' is " + std::to_string(max_size));
 
-    for (unsigned short i = 0; i < size; i++)
-        activation_map[geneIdToGeneString(used_genes++)] = {};
+    for (char i = FIRST_GROWTH_GENE; i < FIRST_GROWTH_GENE + size; i++)
+        activation_map[i] = {};
+    used_genes = size;
     for (auto &gene : activation_map) {
         for (unsigned short _ = 0; _ < gene_activation_length; _++)
             gene.second.push_back(getRandomGene(rng));
@@ -39,16 +40,15 @@ void Genome::mutDup(std::mt19937 &rng) {
         if (uniform_random(rng) > mut_dup)
             continue;
 
-        std::string new_gene;
-        for (unsigned short c = 0; c < used_genes; c++) {  //Recycles deleted genes (inefficient implementation)
-            auto s = geneIdToGeneString(c);
-            if (activation_map.find(s) == activation_map.end()) {
-                new_gene = s;
+        char new_gene = '/';
+        for (char c = FIRST_GROWTH_GENE; c < FIRST_GROWTH_GENE + used_genes; c++) {  //Recycles deleted genes (inefficient implementation)
+            if (activation_map.find(c) == activation_map.end()) {
+                new_gene = c;
                 break;
             }
         }
-        if (new_gene.empty())
-            new_gene = geneIdToGeneString(used_genes++);
+        if (new_gene == '/')
+            new_gene = used_genes++;
         activation_map.insert({new_gene, gene.second});
     }
 }
@@ -59,7 +59,7 @@ void Genome::mutSub(std::mt19937 &rng) {
         if (uniform_random(rng) > mut_sub)
             continue;
 
-        std::string sub_gene;
+        char sub_gene;
         if (uniform_random(rng) < core_gene_substitution_chance) {
             std::uniform_int_distribution<> uniform_dir(0, core_genes.size() - 1);
             sub_gene = core_genes[uniform_dir(rng)];
@@ -75,7 +75,7 @@ void Genome::mutDel(std::mt19937 &rng) {
     if (activation_map.size() == 1)
         return;
 
-    std::vector<std::string> to_remove;
+    std::vector<char> to_remove;
     for (auto &gene : activation_map) {
         if (uniform_random(rng) > mut_del)
             continue;
@@ -85,7 +85,7 @@ void Genome::mutDel(std::mt19937 &rng) {
         for (auto &gene2 : activation_map) {
             for (auto &target_gene : gene2.second) {
                 if (target_gene == gene.first)
-                    target_gene = "";
+                    target_gene = '/';
             }
         }
     }
@@ -94,41 +94,7 @@ void Genome::mutDel(std::mt19937 &rng) {
         activation_map.erase(gene);
 }
 
-std::string Genome::geneIdToGeneString(unsigned short i) {
-    char buffer[36];
-    short index = 0;
-
-    i++;
-    while (i > 0) {
-        i--;
-        buffer[index++] = char('A' + (i % 26));  // Store the character for the current base-26 digit
-        i /= 26;
-    }
-    buffer[index] = '\0';
-
-    return buffer;
-}
-
-const std::string &Genome::getRandomGene(std::mt19937 &rng) const {
+const char &Genome::getRandomGene(std::mt19937 &rng) const {
     std::uniform_int_distribution<> uniform_genome(0, (short) activation_map.size() - 1);
     return std::next(std::begin(activation_map), uniform_genome(rng))->first;
-}
-
-std::string Genome::stringRepresentation() const {
-    std::stringstream gen_ss;
-    for (auto &gene : activation_map) {
-        gen_ss << gene.first << " -> ";
-        for (unsigned short i = 0; i < gene_activation_length - 1; i++)
-            gen_ss << gene.second.at(i) << " | ";
-        gen_ss << gene.second.at(gene_activation_length - 1);
-        gen_ss << "\n";
-    }
-    return gen_ss.str();
-}
-
-std::string Genome::translateGene(const std::string &gene) {
-    if (isGrowthGene(gene)) {
-        return "F";
-    }
-    return gene;
 }

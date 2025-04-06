@@ -15,7 +15,7 @@ struct Parameters {
     const bool replace_dir = true;
     const short generations = 20000;
     // Use '0' for a random seed
-    const unsigned short seed = 0;
+    const unsigned int seed = 0;
     // Forest
     // ======
     const short n_pop = 10;
@@ -33,6 +33,7 @@ struct Parameters {
     // Genome
     // ======
     const unsigned short start_genome_size = 5;
+    // ATTENTION: THIS HAS TO BE LESS THAN MAX_CHAR - 48!!!
     const unsigned short max_genome_size = 10;
     const float mut_sub_rate = 0.01;
     const float mut_dup_rate = 0.001;

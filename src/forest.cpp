@@ -101,14 +101,6 @@ void Forest::saveFittest(const std::string &outdir) const {
     fittest.grow();
     std::ofstream file;
 
-    file.open(outdir + "/fittest_body.txt");
-    file << vecToStr(fittest.body, "") << "\n";
-    file.close();
-
-    file.open(outdir + "/fittest_genome.txt");
-    file << fittest.genome.stringRepresentation();
-    file.close();
-
     file.open(outdir + "/fittest_tree.tree");
     file << fittest.asTREE();
     file.close();

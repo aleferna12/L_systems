@@ -14,22 +14,24 @@
 #include <random>
 #include "parameters.h"
 
-using ActivationMap = std::unordered_map<std::string, std::vector<std::string>>;
+const char FIRST_GROWTH_GENE = 48;
+
+using ActivationMap = std::unordered_map<char, std::vector<char>>;
 
 class Genome {
 public:
     //! Creates a randomized genome of size 'size'.
-    Genome(unsigned short size, unsigned short max_size, float mut_sub, float mut_dup, float mut_del,
+    Genome(char size, unsigned short max_size, float mut_sub, float mut_dup, float mut_del,
            unsigned short gene_activation_length, std::mt19937 &rng);
 
     size_t size() const {
         return activation_map.size();
     }
 
-    const std::string &getRandomGene(std::mt19937 &rng) const;
+    const char &getRandomGene(std::mt19937 &rng) const;
 
     //! Forgive me, gods, for I have used pointers (there is no std::optional(&T) though, so not my fault)
-    const std::vector<std::string> *geneActivates(const std::string &gene) const {
+    const std::vector<char> *geneActivates(const char gene) const {
         auto search = activation_map.find(gene);
         if (search == activation_map.end())
             return nullptr;
@@ -42,15 +44,6 @@ public:
         mutDup(rng);
     }
 
-    std::string stringRepresentation() const;
-
-    //! Returns the gene back if its a core gene and "F" otherwise.
-    static std::string translateGene(const std::string &gene);
-
-    static bool isGrowthGene(const std::string &gene) {
-        return std::find(core_genes.begin(), core_genes.end(), gene) == core_genes.end();
-    }
-
     unsigned short max_size;
     float mut_sub;
     float mut_dup;
@@ -59,7 +52,7 @@ public:
 
     float core_gene_substitution_chance = 0.5;
     //TODO: should this be an unordered_set? benchmark
-    static constexpr std::array core_genes = {"+", "-", "*", "[", "]"};
+    static constexpr std::array core_genes = {'+', '-', '*', '[', ']'};
 
 private:
     void mutDup(std::mt19937 &rng);
@@ -68,9 +61,7 @@ private:
 
     void mutDel(std::mt19937 &rng);
 
-    static std::string geneIdToGeneString(unsigned short i);
-
-    unsigned short used_genes = 0;
+    char used_genes = 0;
     ActivationMap activation_map;
 };
 

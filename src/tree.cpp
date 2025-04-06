@@ -10,7 +10,7 @@
 #include <iostream>
 
 Tree::Tree(
-    const std::vector<std::string> &seedling,
+    const std::vector<char> &seedling,
     Genome genome,
     const unsigned short maturity
 ) : genome(std::move(genome)),
@@ -29,7 +29,7 @@ Tree::Tree(
 ) {}
 
 void Tree::develop(const unsigned short stage) {
-    std::vector<std::string> new_body;
+    std::vector<char> new_body;
     for (unsigned short i = 0; i < stage; i++) {
         new_body.clear();
 
@@ -40,7 +40,7 @@ void Tree::develop(const unsigned short stage) {
                 continue;
             }
             for (auto &target_gene : *target_genes) {
-                if (!target_gene.empty())
+                if (target_gene != '/')
                     new_body.push_back(target_gene);
             }
         }
@@ -49,15 +49,15 @@ void Tree::develop(const unsigned short stage) {
     development_stage += stage;
 }
 
-unsigned short Tree::endOfBranch(std::vector<std::string>::iterator it) {
+unsigned short Tree::endOfBranch(std::vector<char>::iterator it) {
     unsigned short nest = 0;
     unsigned short offset = 0;
     for (;it != body.end(); ++it) {
-        if (*it == "]") {
+        if (*it == ']') {
             if (nest == 0)
                 return offset;
             nest--;
-        } else if (*it == "[")
+        } else if (*it == '[')
             nest++;
         offset++;
     }
@@ -71,20 +71,20 @@ void Tree::grow() {
     segments = {};
     auto it = body.begin();
     while (it != body.end()) {
-        std::string &gene = *it;
+        char &gene = *it;
         const bool inside_branch = !state_stack.empty();
-        if (gene == "[") {
+        if (gene == '[') {
             state_stack.push_back(cur_state);
-        } else if (gene == "]") {
+        } else if (gene == ']') {
             if (inside_branch) {
                 cur_state = state_stack.back();
                 state_stack.pop_back();
             }
-        } else if (gene == "+")
+        } else if (gene == '+')
             cur_state.angle += rotation_angle;
-        else if (gene == "-")
+        else if (gene == '-')
             cur_state.angle -= rotation_angle;
-        else if (gene == "*") {
+        else if (gene == '*') {
             if (cur_state.node->nChildren() == 0) {
                 cur_state.node->data.phen = SEED;
                 if (seed_skips) {
