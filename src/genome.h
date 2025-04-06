@@ -19,8 +19,8 @@ using ActivationMap = std::unordered_map<std::string, std::vector<std::string>>;
 class Genome {
 public:
     //! Creates a randomized genome of size 'size'.
-    Genome(unsigned int size, unsigned int max_size, double mut_sub, double mut_dup, double mut_del,
-           unsigned int gene_activation_length, std::mt19937 &rng);
+    Genome(unsigned short size, unsigned short max_size, float mut_sub, float mut_dup, float mut_del,
+           unsigned short gene_activation_length, std::mt19937 &rng);
 
     size_t size() const {
         return activation_map.size();
@@ -51,13 +51,13 @@ public:
         return std::find(core_genes.begin(), core_genes.end(), gene) == core_genes.end();
     }
 
-    unsigned int max_size;
-    double mut_sub;
-    double mut_dup;
-    double mut_del;
-    unsigned int gene_activation_length;
+    unsigned short max_size;
+    float mut_sub;
+    float mut_dup;
+    float mut_del;
+    unsigned short gene_activation_length;
 
-    double core_gene_substitution_chance = 0.5;
+    float core_gene_substitution_chance = 0.5;
     //TODO: should this be an unordered_set? benchmark
     static constexpr std::array core_genes = {"+", "-", "*", "[", "]"};
 
@@ -68,9 +68,9 @@ private:
 
     void mutDel(std::mt19937 &rng);
 
-    static std::string geneIdToGeneString(unsigned int i);
+    static std::string geneIdToGeneString(unsigned short i);
 
-    unsigned int used_genes = 0;
+    unsigned short used_genes = 0;
     ActivationMap activation_map;
 };
 

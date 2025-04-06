@@ -23,20 +23,20 @@ enum Phenotype {
 struct PhenotypeData {
     Phenotype phen = ROOT;
     CollisionPos pos;
-    double mass = 0;
-    double torque = 0;
+    float mass = 0;
+    float torque = 0;
 };
 
 struct DevState {
     GeneralTree<PhenotypeData> *node = nullptr;
-    double angle = 0;
+    float angle = 0;
 };
 
 class Tree {
 public:
-    Tree(const std::vector<std::string> &seedling, Genome genome, unsigned int maturity);
+    Tree(const std::vector<std::string> &seedling, Genome genome, unsigned short maturity);
 
-    Tree(const Genome &genome, unsigned int maturity, std::mt19937 &rng);
+    Tree(const Genome &genome, unsigned short maturity, std::mt19937 &rng);
 
     //! Gets a clone of this tree before any growth took place.
     Tree germinate() const;
@@ -46,35 +46,36 @@ public:
     //! Tree growth in space (updates segments and seeds).
     void grow();
 
-    void breakBranches(GeneralTree<PhenotypeData> &tree, CollisionPos parent_pos, double branch_length, double max_torque);
+    void breakBranches(GeneralTree<PhenotypeData> &tree, CollisionPos parent_pos, float branch_length, float max_torque);
 
     static void setMass(GeneralTree<PhenotypeData> &tree);
 
     //! Tree body plan development.
-    void develop(unsigned int stage);
+    void develop(unsigned short stage);
 
     Genome genome;
     std::vector<std::string> seedling;  // Needs to be initialized by all constructors
     std::vector<std::string> body;  // Needs to be initialized by all constructors
-    unsigned int maturity;
+    unsigned short maturity;
 
     // TODO: add parameters
-    unsigned int collision_precision = 1000;
-    double rotation_angle = M_PI / 6;
+    unsigned short collision_precision = 1000;
+    float rotation_angle = M_PI / 6;
     bool seed_skips = false;
     std::vector<std::pair<Pos, Pos>> segments;
     std::vector<Pos> seeds;
 
-    unsigned int development_stage = 0;
-    double fitness = 0;
+    unsigned short development_stage = 0;
+    float fitness = 0;
 
     void reset_development();
 
 private:
-    unsigned int endOfBranch(std::vector<std::string>::iterator it);
+    unsigned short endOfBranch(std::vector<std::string>::iterator it);
 
-    double get_fitness() const;
+    float get_fitness() const;
 
+    void find_seeds(GeneralTree<PhenotypeData> &tree);
 };
 
 #endif //L_SYSTEMS_TREE_H

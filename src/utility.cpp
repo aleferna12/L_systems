@@ -8,18 +8,18 @@
 
 std::uniform_real_distribution<> uniform_random(0, 1);
 
-double vecMean(const std::vector<double> &vec) {
-    double sum = std::accumulate(vec.begin(), vec.end(), 0.0);
-    return sum / (double) vec.size();
+float vecMean(const std::vector<float> &vec) {
+    float sum = std::accumulate(vec.begin(), vec.end(), 0.0);
+    return sum / (float) vec.size();
 }
 
-double vecVariance(const std::vector<double> &vec) {
+float vecVariance(const std::vector<float> &vec) {
     auto mean = vecMean(vec);
-    auto un_op = [mean](double x) { return x - mean; };
-    std::vector<double> diff(vec.size());
+    auto un_op = [mean](float x) { return x - mean; };
+    std::vector<float> diff(vec.size());
     std::transform(vec.begin(), vec.end(), diff.begin(), un_op);
-    double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
-    return std::sqrt(sq_sum / (double) vec.size());
+    float sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+    return std::sqrt(sq_sum / (float) vec.size());
 }
 
 std::string vecToStr(const std::vector<std::string> &vec, const std::string &sep) {

@@ -9,9 +9,9 @@
 
 extern std::uniform_real_distribution<> uniform_random;
 
-double vecMean(const std::vector<double> &vec);
+float vecMean(const std::vector<float> &vec);
 
-double vecVariance(const std::vector<double> &vec);
+float vecVariance(const std::vector<float> &vec);
 
 std::string vecToStr(const std::vector<std::string> &vec, const std::string &sep);
 

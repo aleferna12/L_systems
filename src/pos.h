@@ -8,22 +8,22 @@
 
 // This is used to check if two positions are the same within a precision range
 struct CollisionPos {
-    int x = 0;
-    int y = 0;
+    int short x = 0;
+    int short y = 0;
 
     bool operator==(const CollisionPos& other) const = default;
 };
 
 // This is used when we need the real position of the object
 struct Pos {
-    double x = 0;
-    double y = 0;
+    float x = 0;
+    float y = 0;
 
     Pos(
         const CollisionPos &pos,
-        const unsigned int precision
-    ) : x(pos.x / (double) precision),
-        y(pos.y / (double) precision) {}
+        const unsigned short precision
+    ) : x(pos.x / (float) precision),
+        y(pos.y / (float) precision) {}
 };
 
 #endif //L_SYSTEMS_POS_H

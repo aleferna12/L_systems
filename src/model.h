@@ -13,7 +13,7 @@ class Model {
 public:
     explicit Model(const Parameters &parameters);
 
-    void run(unsigned int generations);
+    void run(unsigned short generations);
 
     void run() { run(parameters.generations); }
 

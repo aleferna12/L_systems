@@ -11,14 +11,14 @@
 class Forest {
 public:
     //! Creates a forest and populate it with 'n' trees.
-    Forest(unsigned int n,
-           unsigned int maturity,
-           unsigned int genome_size,
-           unsigned int max_genome_size,
-           double mut_sub,
-           double mut_dup,
-           double mut_del,
-           unsigned int gene_activation_length,
+    Forest(unsigned short n,
+           unsigned short maturity,
+           unsigned short genome_size,
+           unsigned short max_genome_size,
+           float mut_sub,
+           float mut_dup,
+           float mut_del,
+           unsigned short gene_activation_length,
            std::mt19937 &rng);
 
     //! Creates an empty forest.
@@ -38,7 +38,7 @@ public:
 
     std::vector<Tree> population;
     std::optional<Tree> fittest_ever;
-    double total_fitness = 0;
+    float total_fitness = 0;
 
     void saveFittest(const std::string &outdir) const;
 

@@ -38,8 +38,8 @@ Model::Model(const Parameters &parameters) :
     }
 }
 
-void Model::run(const unsigned int generations) {
-    for (unsigned int i = 0; i < generations; i++) {
+void Model::run(const unsigned short generations) {
+    for (unsigned short i = 0; i < generations; i++) {
         if (i % 100 == 0) {
             std::cout << "Generation: " << i << "\n";
             forest.printStats();

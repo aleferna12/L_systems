@@ -8,18 +8,18 @@
 #include "forest.h"
 
 Forest::Forest(
-    unsigned int n,
-    unsigned int maturity,
-    unsigned int genome_size,
-    unsigned int max_genome_size,
-    double mut_sub,
-    double mut_dup,
-    double mut_del,
-    unsigned int gene_activation_length,
+    unsigned short n,
+    unsigned short maturity,
+    unsigned short genome_size,
+    unsigned short max_genome_size,
+    float mut_sub,
+    float mut_dup,
+    float mut_del,
+    unsigned short gene_activation_length,
     std::mt19937 &rng
 ) {
     population.reserve(n);
-    for (unsigned int i = 0; i < n; i++) {
+    for (unsigned short i = 0; i < n; i++) {
         population.emplace_back(
             Genome(
                 genome_size,
@@ -64,11 +64,11 @@ void Forest::evolve(std::mt19937 &rng) {
 }
 
 Tree &Forest::randomTree(std::mt19937 &rng) {
-    return population[std::uniform_int_distribution<>(0, (int) population.size() - 1)(rng)];
+    return population[std::uniform_int_distribution<>(0, (short) population.size() - 1)(rng)];
 }
 
 Tree &Forest::randomFitTree(std::mt19937 &rng) {
-    double rnd = total_fitness * uniform_random(rng);
+    float rnd = total_fitness * uniform_random(rng);
     for (auto &tree: population) {
         if (rnd <= tree.fitness) {
             return tree;
@@ -80,13 +80,13 @@ Tree &Forest::randomFitTree(std::mt19937 &rng) {
 }
 
 void Forest::printStats() {
-    unsigned int tot_gen_size = 0;
+    unsigned short tot_gen_size = 0;
     for (const auto &tree : population) {
         tot_gen_size += tree.genome.size();
     }
 
-    std::cout << "Mean genome size: " << tot_gen_size / (double) population.size() << "\n";
-    std::cout << "Mean get_fitness: " << total_fitness / (double) population.size() << "\n";
+    std::cout << "Mean genome size: " << tot_gen_size / (float) population.size() << "\n";
+    std::cout << "Mean get_fitness: " << total_fitness / (float) population.size() << "\n";
     if (fittest_ever.has_value())
         std::cout << "Best get_fitness: " << fittest_ever.value().fitness<< "\n";
 }

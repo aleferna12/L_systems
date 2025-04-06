@@ -19,13 +19,13 @@ public:
         }
     }
 
-    unsigned int nChildren() const {return children.size();};
+    unsigned short nChildren() const {return children.size();};
 
-    GeneralTree &getChild(const unsigned int pos) const {
+    GeneralTree &getChild(const unsigned short pos) const {
         return *children.at(pos);
     }
 
-    void removeChild(unsigned int pos) {
+    void removeChild(unsigned short pos) {
         children.erase(children.begin() + pos);
     }
 
