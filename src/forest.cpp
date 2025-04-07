@@ -2,9 +2,8 @@
 // Created by alefe on 09/06/2024.
 //
 
-#include <iostream>
-#include <fstream>
 #include <regex>
+#include <iostream>
 #include "forest.h"
 
 Forest::Forest(
@@ -91,36 +90,36 @@ void Forest::printStats() {
         std::cout << "Best get_fitness: " << fittest_ever.value().fitness<< "\n";
 }
 
-void Forest::saveFittest(const std::string &outdir) const {
-    if (!fittest_ever.has_value())
-        throw std::runtime_error("Forest does not have a fittest plant, "
-                                 "did you evolve the population at least once?");
-
-    auto fittest = fittest_ever.value();
-    fittest.develop(fittest.maturity);
-    fittest.grow();
-    std::ofstream file;
-
-    file.open(outdir + "/fittest_tree.tree");
-    file << fittest.asTREE();
-    file.close();
-
-    std::cout << "Saved information about fittest tree "
-                 "(get_fitness = " << fittest.fitness << ") to: '" << outdir << "'\n";
-}
-
-void Forest::saveForest(const std::string &outdir) const {
-    for (size_t i = 0; i < population.size(); i++) {
-        auto tree = population[i];
-        tree.develop(tree.maturity);
-        tree.grow();
-
-        std::ofstream file;
-        std::string basename = outdir + "/" + std::to_string(i) + "_";
-
-        file.open(basename + "tree.tree");
-        file << tree.asTREE();
-        file.close();
-    }
-    std::cout << "Saved forest to: '" << outdir << "'\n";
-}
+//void Forest::saveFittest(const std::string &outdir) const {
+//    if (!fittest_ever.has_value())
+//        throw std::runtime_error("Forest does not have a fittest plant, "
+//                                 "did you evolve the population at least once?");
+//
+//    auto fittest = fittest_ever.value();
+//    fittest.develop(fittest.maturity);
+//    fittest.grow();
+//    std::ofstream file;
+//
+//    file.open(outdir + "/fittest_tree.tree");
+//    file << fittest.asTREE();
+//    file.close();
+//
+//    std::cout << "Saved information about fittest tree "
+//                 "(get_fitness = " << fittest.fitness << ") to: '" << outdir << "'\n";
+//}
+//
+//void Forest::saveForest(const std::string &outdir) const {
+//    for (size_t i = 0; i < population.size(); i++) {
+//        auto tree = population[i];
+//        tree.develop(tree.maturity);
+//        tree.grow();
+//
+//        std::ofstream file;
+//        std::string basename = outdir + "/" + std::to_string(i) + "_";
+//
+//        file.open(basename + "tree.tree");
+//        file << tree.asTREE();
+//        file.close();
+//    }
+//    std::cout << "Saved forest to: '" << outdir << "'\n";
+//}

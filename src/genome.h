@@ -10,7 +10,6 @@
 #include <vector>
 #include <array>
 #include <algorithm>
-#include <memory>
 #include <random>
 #include "parameters.h"
 

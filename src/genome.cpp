@@ -2,8 +2,8 @@
 // Created by alefe on 29/08/2024.
 //
 
-#include <stdexcept>
 #include <sstream>
+#include <iostream>
 #include "genome.h"
 #include "utility.h"
 
@@ -20,8 +20,10 @@ Genome::Genome(
     mut_dup(mut_dup),
     mut_del(mut_del),
     gene_activation_length(gene_activation_length) {
-    if (size > max_size)
-        throw std::runtime_error("Max 'size' is " + std::to_string(max_size));
+    if (size > max_size) {
+        std::cerr << "Starting genome size larger than maximum genome size \n";
+        exit(EXIT_FAILURE);
+    }
 
     for (char i = FIRST_GROWTH_GENE; i < FIRST_GROWTH_GENE + size; i++)
         activation_map[i] = {};

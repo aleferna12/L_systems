@@ -3,13 +3,12 @@
 //
 
 #include <iostream>
-#include <filesystem>
-#include <fstream>
+#include "pico/rand.h"
 #include "model.h"
 
 Model::Model(const Parameters &parameters) :
     parameters(parameters),
-    rng(parameters.seed == 0 ? std::random_device{}() : parameters.seed),
+    rng(parameters.seed == 0 ? get_rand_32() : parameters.seed),
     forest(
         parameters.n_pop,
         parameters.maturity,
@@ -21,11 +20,11 @@ Model::Model(const Parameters &parameters) :
         parameters.gene_activation_length,
         rng
     ) {
-    if (!std::filesystem::create_directory(parameters.outdir)) {
-        if (!parameters.replace_dir)
-            throw std::runtime_error("Directory " + parameters.outdir + " already exists.");
-        std::cerr << "WARNING: replacing files in output directory.\n";
-    }
+//    if (!std::filesystem::create_directory(parameters.outdir)) {
+//        if (!parameters.replace_dir)
+//            throw std::runtime_error("Directory " + parameters.outdir + " already exists.");
+//        std::cerr << "WARNING: replacing files in output directory.\n";
+//    }
 
     // Handle optional parameters of trees and genomes
     for (auto &tree : forest.population) {
@@ -44,16 +43,18 @@ void Model::run(const unsigned short generations) {
             std::cout << "Generation: " << i << "\n";
             forest.printStats();
             std::cout << "\n";
+            print_memory_info();
+            std::cout << "\n";
         }
 
         forest.evolve(rng);
     }
 }
 
-void Model::saveData() const {
-    forest.saveFittest(parameters.outdir);
-
-    const auto forestdir = parameters.outdir + "/forest";
-    std::filesystem::create_directory(forestdir);
-    forest.saveForest(forestdir);
-}
+//void Model::saveData() const {
+//    forest.saveFittest(parameters.outdir);
+//
+//    const auto forestdir = parameters.outdir + "/forest";
+//    std::filesystem::create_directory(forestdir);
+//    forest.saveForest(forestdir);
+//}

@@ -1,13 +1,24 @@
 cmake_minimum_required(VERSION 3.27)
-project(L_systems)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_C_FLAGS -m32)
-set(CMAKE_CXX_FLAGS -m32)
+# Below has to be done before project directive
+set(PICO_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk")
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
+
+if (NOT PICO_BOARD)
+    message("Assuming PICO_BOARD=pico_w")
+    set(PICO_BOARD "pico_w")
+endif()
+
+include("${PICO_SDK_PATH}/external/pico_sdk_import.cmake")
+
+project(L_systems)
+
+pico_sdk_init()
+
+set(CMAKE_CXX_STANDARD 23)
 
 # TODO: use add_compile_options and target_compile_options instead
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -40,3 +51,16 @@ add_executable(
     src/pos.h
     src/generaltree.h
 )
+
+target_compile_definitions(L_systems PRIVATE PICO_RAND_SEED_ENTROPY_SRC_ROSC=1)
+
+target_link_libraries(L_systems
+        pico_stdlib
+        pico_rand
+        pico_cyw43_arch_none
+)
+
+pico_enable_stdio_usb(L_systems 1)
+
+# create map/bin/hex/uf2 file in addition to ELF.
+pico_add_extra_outputs(L_systems)

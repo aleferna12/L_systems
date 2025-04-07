@@ -40,9 +40,9 @@ public:
     std::optional<Tree> fittest_ever;
     float total_fitness = 0;
 
-    void saveFittest(const std::string &outdir) const;
-
-    void saveForest(const std::string &outdir) const;
+//    void saveFittest(const std::string &outdir) const;
+//
+//    void saveForest(const std::string &outdir) const;
 };
 
 

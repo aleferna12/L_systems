@@ -7,8 +7,6 @@
 #include <sstream>
 #include "tree.h"
 
-#include <iostream>
-
 Tree::Tree(
     const std::vector<char> &seedling,
     Genome genome,
@@ -165,8 +163,8 @@ void Tree::breakBranches(
     } else {
         const float x = parent_pos.x - tree.data.pos.x;
         const float y = parent_pos.y - tree.data.pos.y;
-        const float a = atan2(y, x);
-        const float cos_a = cos(a);
+        const float a = atan2f(y, x);
+        const float cos_a = cosf(a);
         const float d = branch_length * cos_a / 2;
         tree.data.torque = tree.data.mass * d * cos_a;
     }
@@ -209,14 +207,14 @@ std::string Tree::asTREE() const {
 
 float Tree::get_fitness() const {
     float fit = 0;
-    for (unsigned short i = 0; i < seeds.size(); i++) {
+    for (size_t i = 0; i < seeds.size(); i++) {
         auto &seed1 = seeds.at(i);
-        fit += 10 + fabs(seed1.x) / 10;
-        for (unsigned short j = 0; j < seeds.size(); j++) {
+        fit += 10 + fabsf(seed1.x) / 10;
+        for (size_t j = 0; j < seeds.size(); j++) {
             if (i == j)
                 continue;
             auto &seed2 = seeds.at(j);
-            fit += fabs(seed1.x - seed2.x) / (float) seeds.size();
+            fit += fabsf(seed1.x - seed2.x) / (float) seeds.size();
         }
     }
     return fit;

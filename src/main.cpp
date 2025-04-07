@@ -1,14 +1,22 @@
 #include <iostream>
-#include <fstream>
-#include <filesystem>
+#include "pico/stdlib.h"
 #include "parameters.h"
 #include "model.h"
 
-// TODO: make genes their own struct to simplify the mess with gene ids etc
-//       add a second terminal gene representing a leaf that determines how fast the plant develops (get rid of synchronous calls to 'tree.develop')
-
+// TODO: add a second terminal gene representing a leaf that determines how fast the plant develops (get rid of synchronous calls to 'tree.develop')
+//       test memory limits, seems like we have some memory left to spare (increase population size and genome size)
 int main() {
+
+
+    stdio_init_all();  // Initialize serial communication
+    sleep_ms(500);  // Give it sometime to connect
+
     Model model(Parameters {});
     model.run();
-    model.saveData();
+
+    while (true) {
+        std::cout << "Finished" << "\n";
+        sleep_ms(2000);
+    }
+    // model.saveData();
 }

@@ -5,8 +5,8 @@
 #ifndef BINARYTREE_H
 #define BINARYTREE_H
 
-#include <memory>
 #include <vector>
+#include <memory>
 
 template <class T>
 class GeneralTree {

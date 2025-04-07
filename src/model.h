@@ -6,6 +6,7 @@
 #define L_SYSTEMS_MODEL_H
 
 #include <cmath>
+#include "pico/rand.h"
 #include "parameters.h"
 #include "forest.h"
 
@@ -17,7 +18,7 @@ public:
 
     void run() { run(parameters.generations); }
 
-    void saveData() const;
+//    void saveData() const;
 
     Parameters parameters;
     std::mt19937 rng;

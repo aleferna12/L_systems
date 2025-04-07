@@ -4,6 +4,11 @@
 
 #include <algorithm>
 #include <sstream>
+#include <numeric>
+#include <cmath>
+#include <malloc.h>
+#include <unistd.h>
+#include <iostream>
 #include "utility.h"
 
 std::uniform_real_distribution<> uniform_random(0, 1);
@@ -33,4 +38,17 @@ std::string vecToStr(const std::vector<std::string> &vec, const std::string &sep
     }
     result << vec.back();
     return result.str();
+}
+
+void print_memory_info() {
+    struct mallinfo info = mallinfo();
+
+    std::cout << "Heap used: " << info.uordblks << " bytes" << "\n";
+
+    char stack_var;
+    uintptr_t stack_top = (uintptr_t)&stack_var;
+    uintptr_t heap_end = (uintptr_t)sbrk(0);
+    uintptr_t free_mem = stack_top - heap_end;
+
+    std::cout << "Estimated free memory (stack <-> heap): "<< free_mem << " bytes" << "\n";
 }

@@ -6,14 +6,14 @@
 #define L_SYSTEMS_PARAMETERS_H
 
 #include <cmath>
+#include <string>
 
 struct Parameters {
     // Model
     // =====
     const std::string outdir = "out";
-    // TODO: set to false once I implement a way to read parameters from the terminal
-    const bool replace_dir = true;
-    const short generations = 20000;
+//    const bool replace_dir = true;
+    const short generations = 20000;  // Should be 10k+
     // Use '0' for a random seed
     const unsigned int seed = 0;
     // Forest
