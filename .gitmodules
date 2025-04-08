@@ -1,6 +1,0 @@
-[submodule "pico-sdk"]
-	path = pico-sdk
-	url = https://github.com/raspberrypi/pico-sdk.git
-[submodule "pimoroni-pico"]
-	path = pimoroni-pico
-	url = https://github.com/pimoroni/pimoroni-pico.git
