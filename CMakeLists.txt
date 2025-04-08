@@ -21,20 +21,6 @@ pico_sdk_init()
 
 set(CMAKE_CXX_STANDARD 23)
 
-# TODO: use add_compile_options and target_compile_options instead
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-elseif (CMAKE_BUILD_TYPE STREQUAL "Profile")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pg -no-pie")
-elseif (CMAKE_BUILD_TYPE STREQUAL "ProfileO3")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3 -pg -no-pie")
-endif()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-message("Compilation flags: " ${CMAKE_CXX_FLAGS})
-
 add_executable(
     L_systems
     src/main.cpp
@@ -55,9 +41,22 @@ add_executable(
     src/graphics.cpp
 )
 
-add_dependencies(L_systems pioasm)
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(L_systems PRIVATE -O3)
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(L_systems PRIVATE -g)
+elseif (CMAKE_BUILD_TYPE STREQUAL "Profile")
+    target_compile_options(L_systems PRIVATE -g -pg -no-pie)
+elseif (CMAKE_BUILD_TYPE STREQUAL "ProfileO3")
+    target_compile_options(L_systems PRIVATE -g -O3 -pg -no-pie)
+endif()
 
+target_compile_options(L_systems PRIVATE -Wall -Wextra)
 target_compile_definitions(L_systems PRIVATE PICO_RAND_SEED_ENTROPY_SRC_ROSC=1)
+get_target_property(COMPILE_DEFS L_systems COMPILE_DEFINITIONS)
+get_target_property(COMPILE_OPS L_systems COMPILE_OPTIONS)
+message(STATUS "Compilation definitions: ${COMPILE_DEFS}")
+message(STATUS "Compilation definitions: ${COMPILE_OPS}")
 
 include(common/pimoroni_bus)
 include(libraries/pico_display_2/pico_display_2)
