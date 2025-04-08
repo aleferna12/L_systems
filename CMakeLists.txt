@@ -12,9 +12,10 @@ if (NOT PICO_BOARD)
     set(PICO_BOARD "pico_w")
 endif()
 
-include("${PICO_SDK_PATH}/external/pico_sdk_import.cmake")
+include(pico_sdk_import.cmake)
+include(pimoroni_pico_import.cmake)
 
-project(L_systems)
+project(L_systems C CXX ASM)
 
 pico_sdk_init()
 
@@ -32,8 +33,8 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "ProfileO3")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-
 message("Compilation flags: " ${CMAKE_CXX_FLAGS})
+
 add_executable(
     L_systems
     src/main.cpp
@@ -50,14 +51,26 @@ add_executable(
     src/model.h
     src/pos.h
     src/generaltree.h
+    src/graphics.h
+    src/graphics.cpp
 )
 
+add_dependencies(L_systems pioasm)
+
 target_compile_definitions(L_systems PRIVATE PICO_RAND_SEED_ENTROPY_SRC_ROSC=1)
+
+include(common/pimoroni_bus)
+include(libraries/pico_display_2/pico_display_2)
+include(libraries/pico_graphics/pico_graphics)
+include(drivers/st7789/st7789)
 
 target_link_libraries(L_systems
         pico_stdlib
         pico_rand
         pico_cyw43_arch_none
+        pico_display_2
+        pico_graphics
+        st7789
 )
 
 pico_enable_stdio_usb(L_systems 1)
