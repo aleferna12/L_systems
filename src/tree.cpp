@@ -10,7 +10,7 @@
 Tree::Tree(
     const std::vector<char> &seedling,
     Genome genome,
-    const unsigned short maturity
+    const uint16_t maturity
 ) : genome(std::move(genome)),
     seedling(seedling),
     body(seedling),
@@ -18,7 +18,7 @@ Tree::Tree(
 
 Tree::Tree(
     const Genome &genome,
-    const unsigned short maturity,
+    const uint16_t maturity,
     std::mt19937 &rng
 ) : Tree(
     {genome.getRandomGene(rng)},
@@ -26,9 +26,9 @@ Tree::Tree(
     maturity
 ) {}
 
-void Tree::develop(const unsigned short stage) {
+void Tree::develop(const uint16_t stage) {
     std::vector<char> new_body;
-    for (unsigned short i = 0; i < stage; i++) {
+    for (uint16_t i = 0; i < stage; i++) {
         new_body.clear();
 
         for (auto &gene : body) {
@@ -47,9 +47,9 @@ void Tree::develop(const unsigned short stage) {
     development_stage += stage;
 }
 
-unsigned short Tree::endOfBranch(std::vector<char>::iterator it) {
-    unsigned short nest = 0;
-    unsigned short offset = 0;
+uint16_t Tree::endOfBranch(std::vector<char>::iterator it) {
+    uint16_t nest = 0;
+    uint16_t offset = 0;
     for (;it != body.end(); ++it) {
         if (*it == ']') {
             if (nest == 0)
@@ -98,12 +98,12 @@ void Tree::grow() {
 
             const auto prev_pos = cur_state.node->data.pos;
             CollisionPos next_pos = {
-                static_cast<short>(prev_pos.x + collision_precision * sinf(cur_state.angle)),
-                static_cast<short>(prev_pos.y + collision_precision * cosf(cur_state.angle))
+                static_cast<int16_t>(prev_pos.x + collision_precision * sinf(cur_state.angle)),
+                static_cast<int16_t>(prev_pos.y + collision_precision * cosf(cur_state.angle))
             };
 
             bool hit = false;
-            for (unsigned short i = 0; i < cur_state.node->nChildren(); i++) {
+            for (uint16_t i = 0; i < cur_state.node->nChildren(); i++) {
                 const auto &child = cur_state.node->getChild(i);
                 if (child.data.pos == next_pos) {
                     hit = true;
@@ -135,7 +135,7 @@ void Tree::grow() {
 }
 
 void Tree::find_seeds(GeneralTree<PhenotypeData> &tree) {
-    for (unsigned short i = 0; i < tree.nChildren(); i++) {
+    for (uint16_t i = 0; i < tree.nChildren(); i++) {
         auto &child = tree.getChild(i);
         if (child.data.phen == SEED) {
             seeds.emplace_back(child.data.pos, collision_precision);
@@ -169,7 +169,7 @@ void Tree::breakBranches(
         tree.data.torque = tree.data.mass * d * cos_a;
     }
 
-    for (unsigned short i = tree.nChildren(); i--;) {
+    for (uint16_t i = tree.nChildren(); i--;) {
         auto &child = tree.getChild(i);
         breakBranches(child, tree.data.pos, branch_length, max_torque);
         if (child.data.torque > max_torque || child.data.pos.y < tree.data.pos.y) {
@@ -185,7 +185,7 @@ void Tree::setMass(GeneralTree<PhenotypeData> &tree) {
     }
 
     float mass = 1;
-    for (unsigned short i = 0; i < tree.nChildren(); i++) {
+    for (uint16_t i = 0; i < tree.nChildren(); i++) {
         auto &child = tree.getChild(i);
         setMass(child);
         mass += child.data.mass;

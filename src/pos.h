@@ -8,8 +8,8 @@
 
 // This is used to check if two positions are the same within a precision range
 struct CollisionPos {
-    short x = 0;
-    short y = 0;
+    int16_t x = 0;
+    int16_t y = 0;
 
     bool operator==(const CollisionPos& other) const = default;
 };
@@ -19,9 +19,11 @@ struct Pos {
     float x = 0;
     float y = 0;
 
+    Pos(float x, float y) : x(x), y(y) {}
+
     Pos(
         const CollisionPos &pos,
-        const unsigned short precision
+        const uint16_t precision
     ) : x(pos.x / (float) precision),
         y(pos.y / (float) precision) {}
 };

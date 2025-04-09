@@ -19,13 +19,13 @@ public:
         }
     }
 
-    unsigned short nChildren() const {return children.size();};
+    uint16_t nChildren() const {return children.size();};
 
-    GeneralTree &getChild(const unsigned short pos) const {
+    GeneralTree &getChild(const uint16_t pos) const {
         return *children.at(pos);
     }
 
-    void removeChild(unsigned short pos) {
+    void removeChild(uint16_t pos) {
         children.erase(children.begin() + pos);
     }
 

@@ -11,14 +11,14 @@
 class Forest {
 public:
     //! Creates a forest and populate it with 'n' trees.
-    Forest(unsigned short n,
-           unsigned short maturity,
-           unsigned short genome_size,
-           unsigned short max_genome_size,
+    Forest(uint16_t n,
+           uint16_t maturity,
+           uint16_t genome_size,
+           uint16_t max_genome_size,
            float mut_sub,
            float mut_dup,
            float mut_del,
-           unsigned short gene_activation_length,
+           uint16_t gene_activation_length,
            std::mt19937 &rng);
 
     //! Creates an empty forest.

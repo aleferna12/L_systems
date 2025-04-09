@@ -9,11 +9,11 @@
 
 Genome::Genome(
     char size,
-    unsigned short max_size,
+    uint16_t max_size,
     float mut_sub,
     float mut_dup,
     float mut_del,
-    unsigned short gene_activation_length,
+    uint16_t gene_activation_length,
     std::mt19937 &rng) :
     max_size(max_size),
     mut_sub(mut_sub),
@@ -29,7 +29,7 @@ Genome::Genome(
         activation_map[i] = {};
     used_genes = size;
     for (auto &gene : activation_map) {
-        for (unsigned short _ = 0; _ < gene_activation_length; _++)
+        for (uint16_t _ = 0; _ < gene_activation_length; _++)
             gene.second.push_back(getRandomGene(rng));
     }
 }
@@ -69,7 +69,7 @@ void Genome::mutSub(std::mt19937 &rng) {
             sub_gene = getRandomGene(rng);
         }
 
-        gene.second.at(short(uniform_random(rng) * gene_activation_length)) = sub_gene;
+        gene.second.at(int16_t(uniform_random(rng) * gene_activation_length)) = sub_gene;
     }
 }
 
@@ -97,6 +97,6 @@ void Genome::mutDel(std::mt19937 &rng) {
 }
 
 const char &Genome::getRandomGene(std::mt19937 &rng) const {
-    std::uniform_int_distribution<> uniform_genome(0, (short) activation_map.size() - 1);
+    std::uniform_int_distribution<> uniform_genome(0, (int16_t) activation_map.size() - 1);
     return std::next(std::begin(activation_map), uniform_genome(rng))->first;
 }

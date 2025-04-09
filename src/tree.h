@@ -34,9 +34,9 @@ struct DevState {
 
 class Tree {
 public:
-    Tree(const std::vector<char> &seedling, Genome genome, unsigned short maturity);
+    Tree(const std::vector<char> &seedling, Genome genome, uint16_t maturity);
 
-    Tree(const Genome &genome, unsigned short maturity, std::mt19937 &rng);
+    Tree(const Genome &genome, uint16_t maturity, std::mt19937 &rng);
 
     std::string asTREE() const;
 
@@ -48,27 +48,27 @@ public:
     static void setMass(GeneralTree<PhenotypeData> &tree);
 
     //! Tree body plan development.
-    void develop(unsigned short stage);
+    void develop(uint16_t stage);
 
     Genome genome;
     std::vector<char> seedling;  // Needs to be initialized by all constructors
     std::vector<char> body;  // Needs to be initialized by all constructors
-    unsigned short maturity;
+    uint16_t maturity;
 
     // TODO: add parameters
-    unsigned short collision_precision = 1000;
+    uint16_t collision_precision = 1000;
     float rotation_angle = M_PI / 6;
     bool seed_skips = false;
     std::vector<std::pair<Pos, Pos>> segments;
     std::vector<Pos> seeds;
 
-    unsigned short development_stage = 0;
+    uint16_t development_stage = 0;
     float fitness = 0;
 
     void reset_development();
 
 private:
-    unsigned short endOfBranch(std::vector<char>::iterator it);
+    uint16_t endOfBranch(std::vector<char>::iterator it);
 
     float get_fitness() const;
 

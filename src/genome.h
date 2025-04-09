@@ -20,8 +20,8 @@ using ActivationMap = std::unordered_map<char, std::vector<char>>;
 class Genome {
 public:
     //! Creates a randomized genome of size 'size'.
-    Genome(char size, unsigned short max_size, float mut_sub, float mut_dup, float mut_del,
-           unsigned short gene_activation_length, std::mt19937 &rng);
+    Genome(char size, uint16_t max_size, float mut_sub, float mut_dup, float mut_del,
+           uint16_t gene_activation_length, std::mt19937 &rng);
 
     size_t size() const {
         return activation_map.size();
@@ -43,11 +43,11 @@ public:
         mutDup(rng);
     }
 
-    unsigned short max_size;
+    uint16_t max_size;
     float mut_sub;
     float mut_dup;
     float mut_del;
-    unsigned short gene_activation_length;
+    uint16_t gene_activation_length;
 
     float core_gene_substitution_chance = 0.5;
     //TODO: should this be an unordered_set? benchmark

@@ -9,20 +9,24 @@
 #include "pico/rand.h"
 #include "parameters.h"
 #include "forest.h"
+#include "graphics.h"
 
 class Model {
 public:
     explicit Model(const Parameters &parameters);
 
-    void run(unsigned short generations);
+    void run(uint16_t generations);
 
     void run() { run(parameters.generations); }
+
+    void draw_tree(const Tree &tree, float scale);
 
 //    void saveData() const;
 
     Parameters parameters;
     std::mt19937 rng;
     Forest forest;
+    Graphics graphics;
 };
 
 

@@ -7,18 +7,18 @@
 #include "forest.h"
 
 Forest::Forest(
-    unsigned short n,
-    unsigned short maturity,
-    unsigned short genome_size,
-    unsigned short max_genome_size,
+    uint16_t n,
+    uint16_t maturity,
+    uint16_t genome_size,
+    uint16_t max_genome_size,
     float mut_sub,
     float mut_dup,
     float mut_del,
-    unsigned short gene_activation_length,
+    uint16_t gene_activation_length,
     std::mt19937 &rng
 ) {
     population.reserve(n);
-    for (unsigned short i = 0; i < n; i++) {
+    for (uint16_t i = 0; i < n; i++) {
         population.emplace_back(
             Genome(
                 genome_size,
@@ -63,7 +63,7 @@ void Forest::evolve(std::mt19937 &rng) {
 }
 
 Tree &Forest::randomTree(std::mt19937 &rng) {
-    return population[std::uniform_int_distribution<>(0, (short) population.size() - 1)(rng)];
+    return population[std::uniform_int_distribution<>(0, (int16_t) population.size() - 1)(rng)];
 }
 
 Tree &Forest::randomFitTree(std::mt19937 &rng) {
@@ -79,7 +79,7 @@ Tree &Forest::randomFitTree(std::mt19937 &rng) {
 }
 
 void Forest::printStats() {
-    unsigned short tot_gen_size = 0;
+    uint16_t tot_gen_size = 0;
     for (const auto &tree : population) {
         tot_gen_size += tree.genome.size();
     }
@@ -111,7 +111,7 @@ void Forest::printStats() {
 //void Forest::saveForest(const std::string &outdir) const {
 //    for (size_t i = 0; i < population.size(); i++) {
 //        auto tree = population[i];
-//        tree.develop(tree.maturity);
+//        tree.develop(tree.maturity - tree.development_stage);
 //        tree.grow();
 //
 //        std::ofstream file;
